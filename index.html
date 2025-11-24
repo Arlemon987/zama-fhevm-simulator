@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" />
-<title>Zama fhEVM Simulator - v28 High Vis</title>
+<title>Zama fhEVM Simulator - v28 Final Fix</title>
 <style>
   :root {
     /* COLORS */
@@ -11,6 +11,7 @@
     --panel-dark: #151a23;
     --node-bg: rgba(20, 20, 25, 0.98);
     
+    /* ACCENTS */
     --zama-blue: #007aff;
     --danger: #ff4d4d;
     --neon-green: #00ff9d;
@@ -56,15 +57,17 @@
     padding: 6px 12px; border-radius: 16px; font-size: 11px; font-weight: 800; cursor: pointer; 
     transition: all 0.2s; color: #555; border: none; background: transparent; outline: none; text-transform: uppercase;
   }
-  .mode-btn:hover { color: #000; background: rgba(255,255,255,0.4); }
   .mode-btn.active-std { background: var(--danger); color: #fff; }
   .mode-btn.active-zama { background: #000; color: var(--bg-page); }
   .mode-btn:disabled { opacity: 0.5; filter: grayscale(1); cursor: not-allowed; }
 
   /* MAIN LAYOUT */
   .layout { 
-    display: grid; grid-template-columns: 1fr 400px; 
-    flex: 1; min-height: 0; overflow: hidden; 
+    display: grid; 
+    grid-template-columns: 1fr 400px; 
+    flex: 1; 
+    min-height: 0; /* Critical for flex child scrolling */
+    overflow: hidden; 
   }
   
   /* CANVAS */
@@ -72,17 +75,18 @@
     position: relative; background: radial-gradient(circle at 50% 50%, #2a2a2a 0%, #000000 100%); 
     overflow: hidden; border-right: 4px solid #000; display: flex; align-items: center; justify-content: center;
   }
+  /* Preserve Aspect Ratio ensures it fits without being cut off */
   svg { width: 100%; height: 100%; pointer-events: none; } 
   
   /* TEACHING OVERLAY */
   .teaching-box {
     position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
-    background: #000; border: 2px solid var(--bg-page); padding: 10px 25px; 
-    border-radius: 12px; width: 90%; max-width: 650px; text-align: center; 
+    background: #000; border: 2px solid var(--bg-page); padding: 8px 20px; 
+    border-radius: 12px; width: 90%; max-width: 600px; text-align: center; 
     box-shadow: 0 5px 20px rgba(0,0,0,0.8); z-index: 50;
   }
-  .teaching-title { color: var(--bg-page); font-size: 11px; font-weight: 900; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 1px; }
-  .teaching-text { color: #fff; font-size: 14px; line-height: 1.3; font-weight: 600; }
+  .teaching-title { color: var(--bg-page); font-size: 10px; font-weight: 900; margin-bottom: 2px; }
+  .teaching-text { color: #fff; font-size: 14px; line-height: 1.2; font-weight: 600; }
 
   /* CONTROLS */
   .controls { 
@@ -117,14 +121,9 @@
   /* SVG TEXT */
   .txt-label { fill: #fff; font-size: 16px; font-weight: 800; font-family: sans-serif; pointer-events: none; }
   .txt-detail { fill: #aaa; font-size: 12px; font-family: monospace; pointer-events: none; }
-  
-  /* --- PACKET TEXT UPDATE --- */
   .packet-text { 
-    fill: #fff; /* White Text */
-    font-size: 13px; /* Larger font */
-    font-weight: 900; 
-    pointer-events: none;
-    text-shadow: 0px 1px 3px rgba(0,0,0,0.9); /* Heavy shadow for visibility on light colors */
+    fill: #fff; font-size: 12px; font-weight: 900; pointer-events: none;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.8);
   }
 
   /* FOOTER */
@@ -143,39 +142,30 @@
     .branding { gap: 6px; }
     .zama-logo { height: 24px; }
     
-    .layout { grid-template-columns: 1fr; grid-template-rows: 55% 1fr; }
+    .layout { grid-template-columns: 1fr; grid-template-rows: 50% 1fr; }
     .canvas-wrapper { border-right: none; border-bottom: 4px solid #000; }
     
     .controls { border-left: none; padding: 10px; gap: 8px; }
     .step-card { display: none; } 
     .log-terminal { font-size: 11px; }
-    
     .btn-control-row { gap: 5px; }
     button.action-btn { padding: 10px; font-size: 11px; }
-    
     .txt-label { font-size: 18px; } 
     .txt-detail { font-size: 14px; }
-
-    .teaching-box { top: 5px; padding: 6px 15px; }
-    .teaching-title { font-size: 9px; }
-    .teaching-text { font-size: 11px; }
   }
 
   /* SVG STYLES */
   .node-rect { fill: var(--node-bg); stroke: #555; stroke-width: 2; transition: all 0.3s; }
   
-  /* ACTIVE STATES */
-  .node-rect.active-zama { stroke: var(--bg-page); stroke-width: 4; fill: rgba(255, 213, 3, 0.15); filter: drop-shadow(0 0 15px rgba(255, 213, 3, 0.6)); }
-  .node-rect.active-std { stroke: var(--danger); stroke-width: 4; fill: rgba(255, 77, 77, 0.15); filter: drop-shadow(0 0 15px rgba(255, 77, 77, 0.6)); }
-  .node-rect.active-mid { stroke: var(--neon-orange); stroke-width: 3; fill: rgba(255, 159, 28, 0.15); filter: drop-shadow(0 0 12px rgba(255, 159, 28, 0.5)); }
-
-  /* --- PACKET STYLE UPDATE --- */
-  .packet { 
-    stroke: #fff; 
-    stroke-width: 3; /* Thicker border */
-    opacity: 0; 
-  }
+  /* Active States */
+  .node-rect.active-zama { stroke: var(--bg-page); stroke-width: 4; fill: rgba(255, 213, 3, 0.15); filter: drop-shadow(0 0 12px rgba(255, 213, 3, 0.6)); }
+  .node-rect.active-std { stroke: var(--danger); stroke-width: 4; fill: rgba(255, 77, 77, 0.15); filter: drop-shadow(0 0 12px rgba(255, 77, 77, 0.6)); }
+  .node-rect.active-mid { stroke: var(--neon-orange); stroke-width: 3; fill: rgba(255, 159, 28, 0.15); filter: drop-shadow(0 0 10px rgba(255, 159, 28, 0.5)); }
   
+  /* Special State for Host Execution */
+  .node-rect.active-host-exec { stroke: #fff; stroke-width: 4; fill: rgba(255,255,255,0.2); filter: drop-shadow(0 0 15px rgba(255,255,255,0.5)); }
+
+  .packet { stroke: #fff; stroke-width: 3; opacity: 0; }
   .link { fill: none; stroke: #444; stroke-width: 2; stroke-dasharray: 6 6; opacity: 0.2; }
   .link.relevant { opacity: 1; stroke: #888; }
 
@@ -227,12 +217,12 @@
       <div class="teaching-text" id="teach-text">Idle. Click Start.</div>
     </div>
 
-    <svg id="simSvg" viewBox="0 0 1000 700" preserveAspectRatio="xMidYMid meet">
+    <svg id="simSvg" viewBox="0 0 1000 900" preserveAspectRatio="xMidYMid meet">
       <defs>
         <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#888" /></marker>
       </defs>
 
-      <g transform="translate(0, 140)">
+      <g transform="translate(0, 120)">
         <path id="l-usr-rel" class="link relevant" d="M100 550 L 200 550" />
         <path id="l-rel-gw" class="link relevant" d="M300 550 L 480 550" />
         <path id="l-rel-host" class="link relevant" d="M250 510 C 250 200, 150 200, 150 180" />
@@ -250,11 +240,7 @@
         <g id="node-rel" transform="translate(200, 510)"><rect class="node-rect" width="100" height="80" rx="4" style="stroke:var(--neon-orange)" /><text x="15" y="45" class="txt-label" style="fill:var(--neon-orange)">Relayer</text></g>
         <g id="node-orc" transform="translate(200, 350)"><rect class="node-rect" width="100" height="80" rx="4" style="stroke:var(--neon-orange)" /><text x="15" y="45" class="txt-label" style="fill:var(--neon-orange)">Oracle</text></g>
         <g id="node-usr" transform="translate(20, 510)"><rect class="node-rect" width="80" height="80" rx="8" /><text x="20" y="45" class="txt-label">User</text></g>
-        
-        <g id="packet-group">
-          <circle id="packet-body" class="packet" cx="0" cy="0" r="24" />
-          <text id="packet-text" class="packet-text" x="0" y="5">Tx</text>
-        </g>
+        <g id="packet-group"><circle id="packet-body" class="packet" cx="0" cy="0" r="24" /><text id="packet-text" class="packet-text" x="0" y="5">Tx</text></g>
       </g>
     </svg>
   </div>
@@ -287,7 +273,7 @@
   <div class="modal-content">
     <div class="modal-header" id="modal-title">Title</div>
     <div class="modal-body">
-      <div id="modal-desc-content"></div>
+      <p id="modal-msg" style="margin-bottom:15px; font-weight:bold;">Message</p>
       <ul class="modal-list" id="modal-details"></ul>
       <p id="modal-footer" style="margin-top:15px; font-weight:bold; color:#fff; border-top:1px solid #444; padding-top:10px;"></p>
     </div>
@@ -366,7 +352,7 @@ const app = (function() {
     $('host-st').innerText = "State: -";
     $('gw-st').innerText = "Idle";
     $('cp-bar').setAttribute('width', 0);
-    document.querySelectorAll('.node-rect').forEach(el => el.classList.remove('active-zama','active-std','active-mid'));
+    document.querySelectorAll('.node-rect').forEach(el => el.classList.remove('active-zama','active-std','active-mid', 'active-host-exec'));
     $('packet-body').style.opacity = 0;
     $('packet-text').style.opacity = 0;
     ['s1','s2','s3'].forEach(id => $(id).style.fill = '#333');
@@ -436,11 +422,11 @@ const app = (function() {
     }, 300);
   }
 
-  function showModal(title, htmlContent, items, footer, isError) {
+  function showModal(title, msg, items, footer, isError) {
     modal.style.display = 'flex';
     $('modal-title').innerText = title;
     $('modal-title').style.color = isError ? 'var(--danger)' : 'var(--bg-page)';
-    $('modal-desc-content').innerHTML = htmlContent;
+    $('modal-msg').innerText = msg;
     const list = $('modal-details');
     list.innerHTML = '';
     items.forEach(i => { const li = document.createElement('li'); li.innerHTML = i; list.appendChild(li); });
@@ -460,17 +446,15 @@ const app = (function() {
         explain("Step 1: Plaintext Input.");
         log("User sending [5, 10].", "normal");
         await movePacket('l-std', '5,10', '#ff4d4d', 1500);
+        
         safeAddClass('node-host', 'active-std');
         log("Host executed publicly.", "err");
+        
+        // STOP AND GLOW
+        await wait(1000); 
+        
         $('host-st').innerText = "State: 15 (VISIBLE)";
-        await wait(500);
-        
-        const publicDesc = `
-          <p><b>How Public Blockchains Work:</b> In a standard transaction, data is sent in <b>plaintext</b>. The miners need to see the data to verify the transaction logic (5 + 10 = 15). While this ensures correctness, it means <b>zero privacy</b>.</p>
-          <p>Because the data is visible in the mempool before it is finalized, it is vulnerable to <b>MEV (Maximal Extractable Value)</b> attacks, where bots front-run your trade. The final state '15' is permanently visible to the world.</p>
-        `;
-        
-        showModal("Public Transaction Complete", publicDesc, ["Broadcast: Plaintext sent openly.", "Execution: Public verification.", "Risk: High exposure."], "Result: 15", true);
+        showModal("Public Tx Done", "Data Exposed.", ["Inputs Visible.", "No Privacy."], "Result: 15", true);
       } else {
         explain("Step 1: Encrypt & Send to Relayer.");
         log("User Encrypting...", "zama");
@@ -492,8 +476,13 @@ const app = (function() {
         await movePacket('l-rel-host', 'Tx', '#fff', 1000);
         safeRemoveClass('node-rel', 'active-mid');
         
-        explain("Step 4: Host -> Coprocessors.");
+        safeAddClass('node-host', 'active-host-exec');
+        explain("Step 4: Host Chain Symbolic Execution.");
+        log("Host executing...", "zama");
+        await wait(1000); // HOST GLOWS HERE
+        
         await movePacket('l-host-cp', 'Event', '#007aff', 1000);
+        safeRemoveClass('node-host', 'active-host-exec');
         
         safeAddClass('node-cp', 'active-zama');
         log("Computing FHE...", "zama");
@@ -515,13 +504,7 @@ const app = (function() {
         await movePacket('l-orc-host', 'Callback', '#ff9f1c', 1000);
         
         $('host-st').innerText = "State: 15 (Encrypted)";
-        
-        const zamaDesc = `
-          <p><b>How Zama fhEVM Works:</b> This transaction was end-to-end encrypted. The user's inputs (5, 10) were encrypted locally. The <b>Host Chain</b> didn't process the numbers; it processed "Handles" (references). The actual addition happened on <b>Coprocessors</b> which computed on the ciphertext without seeing the data.</p>
-          <p>To reveal the result, a <b>Threshold Protocol</b> was used. The KMS shards collaborated to decrypt the result only after verifying the user's permission. Finally, an <b>Oracle</b> securely bridged the result back to the chain. This ensures that <b>data remains confidential</b> throughout the entire lifecycle.</p>
-        `;
-        
-        showModal("Secure Done", zamaDesc, ["Encryption: Inputs hidden via ZK.", "Blind Compute: Math on ciphertexts.", "KMS: No single key failure point."], "Result: 15", false);
+        showModal("Secure Done", "Confidential.", ["Relayer Gas.", "Gateway Verify.", "KMS Decrypt."], "Result: 15", false);
       }
     } catch(e) { console.error(e); alert("Error: "+e.message); }
     finally { 
