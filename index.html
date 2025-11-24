@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" />
-<title>Zama fhEVM Simulator - v29 Granular Logs</title>
+<title>Zama fhEVM Simulator - v30 Voice Edition</title>
 <style>
   :root {
     /* COLORS */
@@ -37,7 +37,7 @@
     padding-top: env(safe-area-inset-top); 
   }
   
-  .branding { display: flex; align-items: center; gap: 7px; flex: 1; }
+  .branding { display: flex; align-items: center; gap: 8px; flex: 1; }
   .zama-logo { height: 30px; width: auto; mix-blend-mode: multiply; border: 1px solid rgba(0,0,0,0.1); }
   h1 { margin: 0; font-size: 18px; font-weight: 900; letter-spacing: -0.5px; text-transform: uppercase; white-space: nowrap; }
 
@@ -56,7 +56,6 @@
     padding: 6px 12px; border-radius: 16px; font-size: 11px; font-weight: 800; cursor: pointer; 
     transition: all 0.2s; color: #555; border: none; background: transparent; outline: none; text-transform: uppercase;
   }
-  .mode-btn:hover { color: #000; background: rgba(255,255,255,0.4); }
   .mode-btn.active-std { background: var(--danger); color: #fff; }
   .mode-btn.active-zama { background: #000; color: var(--bg-page); }
   .mode-btn:disabled { opacity: 0.5; filter: grayscale(1); cursor: not-allowed; }
@@ -78,12 +77,12 @@
   /* TEACHING OVERLAY */
   .teaching-box {
     position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
-    background: #000; border: 2px solid var(--bg-page); padding: 8px 20px; 
-    border-radius: 12px; width: 90%; max-width: 600px; text-align: center; 
+    background: #000; border: 2px solid var(--bg-page); padding: 10px 25px; 
+    border-radius: 12px; width: 90%; max-width: 650px; text-align: center; 
     box-shadow: 0 5px 20px rgba(0,0,0,0.8); z-index: 50;
   }
-  .teaching-title { color: var(--bg-page); font-size: 10px; font-weight: 900; margin-bottom: 2px; }
-  .teaching-text { color: #fff; font-size: 14px; line-height: 1.2; font-weight: 600; }
+  .teaching-title { color: var(--bg-page); font-size: 11px; font-weight: 900; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 1px; }
+  .teaching-text { color: #fff; font-size: 14px; line-height: 1.3; font-weight: 600; }
 
   /* CONTROLS */
   .controls { 
@@ -103,30 +102,27 @@
   button.btn-std { background: var(--danger); color: #fff; border: 2px solid #000; }
   button.btn-pause { background: #fff; color:#000; border: 2px solid #000; }
   button.btn-pause.paused { background: #000; color: #fff; animation: blink 1s infinite; }
+  
+  /* AUDIO BUTTON STYLE */
+  button.btn-audio { background: #444; color: #fff; border: 1px solid #666; }
+  button.btn-audio.on { background: var(--neon-green); color: #000; border-color: #000; }
+
   @keyframes blink { 0%{opacity:1} 50%{opacity:0.7} 100%{opacity:1} }
   button:hover { transform: translateY(-2px); filter: brightness(1.1); }
   button:disabled { background: #333; color: #777; filter: grayscale(1); border-color: #444; cursor: not-allowed; }
 
-  /* LOG TERMINAL - INCREASED FONT */
   .log-terminal { 
     flex: 1; background: #000; border-radius: 8px; border: 1px solid #333; 
-    padding: 15px; 
-    font-family: 'Courier New', monospace; 
-    font-size: 18px; /* Bigger Font on Desktop */
-    line-height: 1.6; color: var(--neon-green); overflow-y: auto; 
+    padding: 12px; font-family: 'Courier New', monospace; font-size: 13px; line-height: 1.4; color: var(--neon-green); overflow-y: auto; 
   }
-  .log-entry { margin-bottom: 4px; border-bottom: 1px solid #1a1a1a; padding-bottom: 2px; }
+  .log-entry { margin-bottom: 6px; border-bottom: 1px solid #222; padding-bottom: 3px; }
   .highlight-red { color: var(--danger); font-weight: bold; }
   .highlight-yellow { color: var(--bg-page); font-weight: bold; }
-  .log-time { color: #555; font-size: 0.8em; margin-right: 8px; }
 
   /* SVG TEXT */
   .txt-label { fill: #fff; font-size: 16px; font-weight: 800; font-family: sans-serif; pointer-events: none; }
   .txt-detail { fill: #aaa; font-size: 12px; font-family: monospace; pointer-events: none; }
-  .packet-text { 
-    fill: #fff; font-size: 12px; font-weight: 900; pointer-events: none;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.8);
-  }
+  .packet-text { fill: #000; font-size: 11px; font-weight: 900; pointer-events: none; }
 
   /* FOOTER */
   footer {
@@ -149,7 +145,7 @@
     
     .controls { border-left: none; padding: 10px; gap: 8px; }
     .step-card { display: none; } 
-    .log-terminal { font-size: 13px; } /* Bigger Mobile Font */
+    .log-terminal { font-size: 11px; }
     .btn-control-row { gap: 5px; }
     button.action-btn { padding: 10px; font-size: 11px; }
     .txt-label { font-size: 18px; } 
@@ -159,7 +155,6 @@
   /* SVG STYLES */
   .node-rect { fill: var(--node-bg); stroke: #555; stroke-width: 2; transition: all 0.3s; }
   
-  /* Active States */
   .node-rect.active-zama { stroke: var(--bg-page); stroke-width: 4; fill: rgba(255, 213, 3, 0.15); filter: drop-shadow(0 0 12px rgba(255, 213, 3, 0.6)); }
   .node-rect.active-std { stroke: var(--danger); stroke-width: 4; fill: rgba(255, 77, 77, 0.15); filter: drop-shadow(0 0 12px rgba(255, 77, 77, 0.6)); }
   .node-rect.active-mid { stroke: var(--neon-orange); stroke-width: 3; fill: rgba(255, 159, 28, 0.15); filter: drop-shadow(0 0 10px rgba(255, 159, 28, 0.5)); }
@@ -196,7 +191,7 @@
 <header>
   <div class="branding">
     <img src="logo.jpg" alt="Logo" class="zama-logo" onerror="this.style.backgroundColor='white'" />
-    <h1>Zama <span>FHEVM Simulator</span></h1>
+    <h1>Zama <span>FHEVM Sim</span></h1>
   </div>
   
   <div class="disclaimer">
@@ -205,8 +200,8 @@
 
   <div class="mode-wrapper">
     <div class="mode-switch">
-      <button id="mode-std" class="mode-btn" onclick="app.setMode('std')">Other EVM</button>
-      <button id="mode-zama" class="mode-btn active-zama" onclick="app.setMode('zama')">Zama FHEVM</button>
+      <button id="mode-std" class="mode-btn" onclick="app.setMode('std')">Public</button>
+      <button id="mode-zama" class="mode-btn active-zama" onclick="app.setMode('zama')">Zama</button>
     </div>
   </div>
 </header>
@@ -215,7 +210,7 @@
   <div class="canvas-wrapper">
     <div class="teaching-box" id="teach-box">
       <div class="teaching-title">STATUS</div>
-      <div class="teaching-text" id="teach-text">Idle. Click Start.</div>
+      <div class="teaching-text" id="teach-text">Idle. Enable Audio for Voice Narration.</div>
     </div>
 
     <svg id="simSvg" viewBox="0 0 1000 900" preserveAspectRatio="xMidYMid meet">
@@ -250,11 +245,12 @@
     <div id="desc-box">
       <div class="step-card">
         <div id="step-title" class="step-title" style="color:var(--bg-page)">ZAMA FHEVM MODE</div>
-        <div id="step-desc" class="step-desc">The Zama Confidential Blockchain Protocol enables confidential smart contracts on top of any L1 or L2 using FHE.</div>
+        <div id="step-desc" class="step-desc">User > Relayer > Gateway > Host > Coprocessor > Gateway > KMS > Oracle.</div>
       </div>
     </div>
     
     <div class="btn-control-row">
+      <button id="btn-audio" class="action-btn btn-audio" onclick="app.toggleAudio()">🔇 AUDIO OFF</button>
       <button id="btn-pause" class="action-btn btn-pause" onclick="app.togglePause()">PAUSE</button>
       <button id="btn-run" class="action-btn btn-zama" onclick="app.runSimulation()">START</button>
     </div>
@@ -299,8 +295,32 @@ const app = (function() {
   
   let isRunning = false;
   let isPaused = false;
+  let isMuted = true;
   let currentMode = 'zama';
   const SPEED_FACTOR = 1.8; 
+
+  function toggleAudio() {
+    isMuted = !isMuted;
+    const btn = $('btn-audio');
+    if(isMuted) {
+      btn.innerText = "🔇 AUDIO OFF";
+      btn.classList.remove('on');
+      window.speechSynthesis.cancel();
+    } else {
+      btn.innerText = "🔊 AUDIO ON";
+      btn.classList.add('on');
+      speak("Audio enabled.");
+    }
+  }
+
+  function speak(text) {
+    if(isMuted) return;
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.rate = 1.1; 
+    u.volume = 1.0;
+    window.speechSynthesis.speak(u);
+  }
 
   function safeAddClass(id, cls) {
     const el = $(id);
@@ -320,6 +340,8 @@ const app = (function() {
     const btn = $('btn-pause');
     btn.innerHTML = isPaused ? "RESUME" : "PAUSE";
     btn.classList.toggle('paused', isPaused);
+    if(isPaused) window.speechSynthesis.pause();
+    else window.speechSynthesis.resume();
   }
 
   function setMode(m) {
@@ -370,18 +392,17 @@ const app = (function() {
     explain("Ready.");
   }
 
-  function explain(txt) { teachText.innerText = txt; }
+  function explain(txt) { 
+    teachText.innerText = txt; 
+    speak(txt);
+  }
 
   function log(msg, type) {
     const div = document.createElement('div');
     div.className = 'log-entry';
     if(type==='err') div.style.color = 'var(--danger)';
     if(type==='zama') div.style.color = 'var(--bg-page)';
-    
-    // Adding a timestamp for realism
-    const time = new Date().toLocaleTimeString().split(' ')[0];
-    div.innerHTML = `<span style="color:#555; font-size:0.8em; margin-right:5px;">[${time}]</span> > ${msg}`;
-    
+    div.innerText = `> ${msg}`;
     $('logger').appendChild(div);
     $('logger').scrollTop = $('logger').scrollHeight;
   }
@@ -448,29 +469,17 @@ const app = (function() {
 
     try {
       if(currentMode === 'std') {
-        explain("Step 1: Plaintext Input.");
-        log("Wallet: Initiating Transaction...", "normal");
-        await wait(300);
-        log("Input Data: [5, 10] (Unprotected)", "err");
-        await wait(300);
-        log("Signing transaction with private key...", "normal");
-        
-        safeAddClass('node-usr', 'active-std');
-        await wait(800);
-        
-        log("Broadcasting to Mempool...", "err");
-        await movePacket('l-std', '5,10', '#ff4d4d');
-        safeRemoveClass('node-usr', 'active-std');
+        explain("Step 1: Plaintext Input. User sending plaintext numbers 5 and 10 openly on the network.");
+        log("User inputting plaintext [5, 10].", "normal");
+        await movePacket('l-std', '5,10', '#ff4d4d', 1500);
         
         safeAddClass('node-host', 'active-std');
-        log("Host: Transaction received.", "normal");
-        await wait(300);
-        log("Host: Executing Logic: ADD(5, 10)", "err");
-        explain("Step 2: Host Chain computes 5+10 publicly. Everyone sees the math.");
-        await wait(1000);
+        log("Host executed publicly.", "err");
+        
+        // GLOW PAUSE
+        await wait(1000); 
+        
         $('host-st').innerText = "State: 15 (VISIBLE)";
-        log("Host: State Updated. Value '15' is Public.", "err");
-        await wait(500);
         
         const publicDesc = `
           <p><b>How Public Blockchains Work:</b> In a standard transaction, data is sent in <b>plaintext</b>. The miners need to see the data to verify the transaction logic (5 + 10 = 15). While this ensures correctness, it means <b>zero privacy</b>.</p>
@@ -479,107 +488,55 @@ const app = (function() {
         
         showModal("Public Transaction Complete", publicDesc, ["Broadcast: Plaintext sent openly.", "Execution: Public verification.", "Risk: High exposure."], "Result: 15", true);
       } else {
-        explain("Step 1: Encrypt & Send to Relayer.");
-        log("Wallet: Generating ephemeral keys...", "zama");
-        await wait(300);
-        log("Wallet: Encrypting 5 -> ct_0x8a...", "zama");
-        await wait(300);
-        log("Wallet: Encrypting 10 -> ct_0x9b...", "zama");
-        await wait(300);
-        log("Wallet: Generating ZK Proof of Knowledge...", "zama");
-        safeAddClass('node-usr', 'active-zama');
-        await wait(500);
-        
-        await movePacket('l-usr-rel', 'Enc+ZK', '#ffd503');
-        safeRemoveClass('node-usr', 'active-zama');
+        explain("Step 1: Encrypt & Send to Relayer. User generating keys and encrypting inputs.");
+        log("User Encrypting...", "zama");
+        await movePacket('l-usr-rel', 'Enc', '#ffd503', 800);
         
         safeAddClass('node-rel', 'active-mid');
-        log("Relayer: Packet received.", "normal");
-        await wait(300);
-        log("Relayer: Estimating gas fees...", "normal");
-        await wait(300);
-        log("Relayer: Forwarding to Gateway for verification...", "normal");
+        log("Relayer processing...", "normal");
+        await wait(500);
         
-        explain("Step 2: Relayer -> Gateway (Verify).");
-        await movePacket('l-rel-gw', 'ZK Proof', '#ff9f1c');
+        explain("Step 2: Relayer forwards ZK Proofs to Gateway for validation.");
+        await movePacket('l-rel-gw', 'ZK', '#ff9f1c', 800);
         safeAddClass('node-gw', 'active-zama');
-        log("Gateway: Validating ZK Proof signature...", "zama");
-        $('gw-st').innerText = "Verifying...";
+        log("Gateway verifying proofs...", "zama");
         await wait(800);
         $('gw-st').innerText = "Verified";
-        log("Gateway: Proof Valid. Attestation signed.", "zama");
         safeRemoveClass('node-gw', 'active-zama');
         
-        log("Relayer: Submitting Transaction to Host Chain...", "normal");
-        await movePacket('l-rel-host', 'Tx', '#fff');
+        explain("Step 3: Relayer submits Transaction to Host Chain.");
+        await movePacket('l-rel-host', 'Tx', '#fff', 1000);
         safeRemoveClass('node-rel', 'active-mid');
         
         safeAddClass('node-host', 'active-host-exec');
-        explain("Step 4: Host Chain Symbolic Execution.");
-        log("Host: Executing Smart Contract...", "zama");
-        await wait(500);
-        $('host-st').innerText = "Handle: 0x8a...";
-        log("Host: Generated Ciphertext Handle (Pointer).", "zama");
-        await wait(300);
-        log("Host: Emitting 'FheAdd' Event to Coprocessors...", "zama");
+        explain("Step 4: Host Chain executes logic symbolically using Handles.");
+        log("Host executing...", "zama");
+        await wait(1000); // HOST GLOWS HERE
         
-        await movePacket('l-host-cp', 'Event', '#007aff');
+        await movePacket('l-host-cp', 'Event', '#007aff', 1000);
         safeRemoveClass('node-host', 'active-host-exec');
         
         safeAddClass('node-cp', 'active-zama');
-        log("Coprocessors: Event detected.", "normal");
-        await wait(300);
-        log("Coprocessors: Fetching encrypted data...", "normal");
-        await wait(300);
-        log("Coprocessors: Performing FHE_ADD(ct1, ct2)...", "zama");
+        explain("Step 5: Coprocessors perform blind arithmetic on encrypted data.");
+        log("Computing FHE...", "zama");
         $('cp-bar').setAttribute('width', 180); $('cp-bar').style.transition = "width 2s";
         await wait(1500);
         
-        log("Coprocessors: Computation complete.", "zama");
-        log("Coprocessors: Generating Result Digest...", "normal");
-        await movePacket('l-cp-gw', 'Digest', '#00ff9d');
+        explain("Step 6: Sending Result Digest to Gateway.");
+        await movePacket('l-cp-gw', 'Digest', '#00ff9d', 1000);
         safeRemoveClass('node-cp', 'active-zama');
         
-        explain("Step 6: Decrypt (KMS).");
-        safeAddClass('node-gw', 'active-zama');
-        log("Gateway: Verifying computation digest...", "zama");
-        await wait(500);
-        log("Gateway: Checking Access Control List (ACL)...", "zama");
-        await wait(300);
-        log("Gateway: Requesting Threshold Decryption...", "zama");
-        await movePacket('l-gw-kms', 'Req', '#ff0055');
-        
-        safeAddClass('node-kms', 'active-zama');
-        log("KMS Shard 1: Verifying request...", "zama");
-        $('s1').style.fill = '#00ff9d'; await wait(300);
-        log("KMS Shard 2: Verifying request...", "zama");
-        $('s2').style.fill = '#00ff9d'; await wait(300);
-        log("KMS Shard 3: Verifying request...", "zama");
-        $('s3').style.fill = '#00ff9d'; await wait(300);
-        
-        log("KMS: Threshold met (3/3).", "zama");
-        await wait(500);
-        log("KMS: Aggregating partial decryption shares...", "zama");
-        
-        log("Gateway: Result reconstructed: 15.", "zama");
-        $('gw-st').innerText = "Result: 15";
-        safeRemoveClass('node-kms', 'active-zama');
-        
-        explain("Step 7: Oracle Delivery.");
-        log("Gateway: Sending plaintext to Oracle...", "normal");
-        await movePacket('l-gw-orc', '15', '#ff9f1c');
-        safeRemoveClass('node-gw', 'active-zama');
-        
-        safeAddClass('node-orc', 'active-mid');
-        log("Oracle: Preparing Callback Transaction...", "normal");
-        await wait(500);
-        await movePacket('l-orc-host', 'Callback', '#ff9f1c');
-        safeRemoveClass('node-orc', 'active-mid');
-        
-        safeAddClass('node-host', 'active-zama');
-        log("Host: State updated via Callback.", "zama");
-        $('host-st').innerText = "State: 15 (Encrypted)";
+        explain("Step 7: Gateway requests Threshold Decryption from K M S.");
+        await movePacket('l-gw-kms', 'Req', '#ff0055', 800);
+        ['s1','s2','s3'].forEach(id => $(id).style.fill = '#00ff9d');
+        log("KMS Threshold met.", "zama");
         await wait(1000);
+        
+        explain("Step 8: Gateway sends decrypted result to Oracle for delivery.");
+        await movePacket('l-gw-orc', '15', '#ff9f1c', 800);
+        await movePacket('l-orc-host', 'Callback', '#ff9f1c', 1000);
+        
+        $('host-st').innerText = "State: 15 (Encrypted)";
         
         const zamaDesc = `
           <p><b>How Zama fhEVM Works:</b> This transaction was end-to-end encrypted. The user's inputs (5, 10) were encrypted locally. The <b>Host Chain</b> didn't process the numbers; it processed "Handles" (references). The actual addition happened on <b>Coprocessors</b> which computed on the ciphertext without seeing the data.</p>
@@ -596,12 +553,8 @@ const app = (function() {
     }
   }
 
-  return { setMode, runSimulation, togglePause, closeModal, resetApp };
+  return { setMode, runSimulation, togglePause, closeModal, resetApp, toggleAudio };
 })();
 </script>
 </body>
 </html>
-
-
-
-
