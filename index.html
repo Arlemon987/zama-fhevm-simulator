@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
-<title>Zama fhEVM Simulator - v21 Final Overlay</title>
+<title>Zama fhEVM Simulator - Final</title>
 <style>
   :root {
     /* ZAMA COLORS */
@@ -125,7 +125,23 @@
   .link { fill: none; stroke: #444; stroke-width: 2; stroke-dasharray: 6 6; opacity: 0.2; transition: opacity 0.5s; }
   .link.relevant { opacity: 1; stroke: #888; }
 
-  /* RESULT MODAL */
+  /* FOOTER */
+  footer {
+    flex-shrink: 0;
+    background: #000;
+    color: #888;
+    padding: 10px;
+    text-align: center;
+    font-size: 11px;
+    border-top: 2px solid #222;
+    z-index: 100;
+    letter-spacing: 0.5px;
+  }
+  footer a { color: var(--bg-page); text-decoration: none; font-weight: 700; transition: opacity 0.2s; }
+  footer a:hover { opacity: 0.8; text-decoration: underline; }
+  .heart { color: var(--danger); font-size: 14px; vertical-align: middle; }
+
+  /* MODAL */
   .modal-overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(0,0,0,0.9); backdrop-filter: blur(5px); display: none; 
@@ -144,16 +160,13 @@
   .modal-list li { margin-bottom: 10px; }
   .modal-btn { margin-top: 20px; width: 100%; padding: 16px; font-size: 14px; font-weight: 900; border-radius: 8px; cursor: pointer; background: var(--bg-page); color: #000; border: none; text-transform: uppercase; }
 
-  /* FINAL OVERLAY (Black Shadow Screen) */
+  /* FINAL OVERLAY */
   #final-overlay {
     background: rgba(0,0,0,0.85);
-    display: none; /* Toggled via JS */
-    flex-direction: column;
-    z-index: 99990; /* Below modal, above everything else */
+    display: none; flex-direction: column;
+    z-index: 99990; 
   }
-  .final-content {
-    text-align: center; color: #fff;
-  }
+  .final-content { text-align: center; color: #fff; }
   .final-title { font-size: 30px; font-weight: 900; margin-bottom: 20px; color: var(--bg-page); }
   .final-btn { 
     padding: 20px 40px; font-size: 18px; font-weight: 900; 
@@ -175,11 +188,11 @@
 <header>
   <div class="branding">
     <img src="logo.jpg" alt="Zama Logo" class="zama-logo" onerror="this.style.backgroundColor='white'" />
-    <h1>Zama Fhevm<span>Simulator</span></h1>
+    <h1>Zama <span>Fhevm Simulator</span></h1>
   </div>
   
   <div class="disclaimer">
-    This Simulation is based on the <a href="https://github.com/zama-ai/fhevm/blob/main/fhevm-whitepaper.pdf" target="_blank">Technical Whitepaper</a> from Zama.<br>There might have errors in the simulation. I have attempted to present my understanding of the matter.
+    This Simulation is based on the <a href="https://github.com/zama-ai/fhevm/blob/main/fhevm-whitepaper.pdf" target="_blank">Technical Whitepaper</a> from Zama.<br>There may be error in the simulation.
   </div>
 
   <div class="mode-wrapper">
@@ -273,6 +286,11 @@
     </div>
   </div>
 </div>
+
+<footer>
+  Built with <span class="heart">♥</span> for <a href="https://zama.ai" target="_blank">ZAMA</a> &nbsp;|&nbsp; 
+  Developer: <a href="https://x.com/lemonar777" target="_blank">@lemonar777</a>
+</footer>
 
 <div id="result-modal" class="modal-overlay">
   <div class="modal-content">
@@ -418,7 +436,6 @@ const app = (function() {
     modal.classList.remove('show-modal');
     setTimeout(()=> {
         modal.style.display='none';
-        // SHOW FINAL OVERLAY AFTER CLOSING MODAL
         finalOverlay.style.display = 'flex';
     }, 300);
   }
@@ -444,7 +461,6 @@ const app = (function() {
 
     try {
       if(currentMode === 'std') {
-        // PUBLIC FLOW
         explain("Step 1: User sends plaintext (5, 10).");
         log("User inputting plaintext [5, 10].", "normal");
         $('node-usr').querySelector('rect').classList.add('active-std');
@@ -481,7 +497,6 @@ const app = (function() {
       } else {
         // ZAMA FLOW
         
-        // 1. INPUT
         explain("Phase 1: Input & Verification.");
         log("User generating ephemeral keys...", "zama");
         $('node-usr').querySelector('rect').classList.add('active-zama');
@@ -512,7 +527,6 @@ const app = (function() {
         await movePacket('l-rel-host', 'Tx', '#fff', 1000);
         $('node-rel').querySelector('rect').classList.remove('active-mid');
         
-        // 2. COMPUTE
         $('node-host').querySelector('rect').classList.add('active-zama');
         explain("Phase 2: Encrypted Execution.");
         log("Host Chain executing smart contract...", "zama");
@@ -534,7 +548,6 @@ const app = (function() {
         await movePacket('l-cp-gw', 'Digest', '#00ff9d', 1000);
         $('node-cp').querySelector('rect').classList.remove('active-zama');
         
-        // 3. DECRYPT
         explain("Phase 3: Threshold Decryption.");
         $('node-gw').querySelector('rect').classList.add('active-zama');
         log("Gateway checking ACL (Access Control List).", "zama");
@@ -589,6 +602,16 @@ const app = (function() {
         );
       }
     } catch(e) { console.error(e); alert("Error: "+e.message); }
+    finally { 
+      if(currentMode === 'std' && !$('result-modal').classList.contains('show-modal')) {
+          // Edge case for error or interruption
+          isRunning = false; 
+          $('btn-run').disabled = false; 
+          $('btn-run').innerText = "RESET & RUN AGAIN";
+          $('mode-std').disabled = false;
+          $('mode-zama').disabled = false;
+      }
+    }
   }
 
   return { setMode, runSimulation, togglePause, closeModal, resetApp };
