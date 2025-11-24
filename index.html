@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" />
-<title>Zama fhEVM Simulator - v25 iPhone Fix</title>
+<title>Zama fhEVM Simulator - v26 Final</title>
 <style>
   :root {
     /* COLORS */
@@ -25,12 +25,8 @@
     margin: 0; padding: 0;
     background: var(--bg-page); color: #000; 
     font-family: var(--font); 
-    /* FIX: Use dynamic height to account for mobile address bars */
-    height: 100%; 
-    height: 100dvh; 
-    overflow: hidden; 
-    display: flex; 
-    flex-direction: column; 
+    height: 100%; height: 100dvh; 
+    overflow: hidden; display: flex; flex-direction: column; 
   }
   
   /* HEADER */
@@ -38,7 +34,6 @@
     flex-shrink: 0; padding: 0 20px; border-bottom: 3px solid #000; 
     display: flex; justify-content: space-between; align-items: center; 
     background: var(--bg-page); z-index: 1000; height: 60px;
-    /* Safe area for notched phones */
     padding-top: env(safe-area-inset-top); 
   }
   
@@ -61,18 +56,14 @@
     padding: 6px 12px; border-radius: 16px; font-size: 11px; font-weight: 800; cursor: pointer; 
     transition: all 0.2s; color: #555; border: none; background: transparent; outline: none; text-transform: uppercase;
   }
-  .mode-btn:hover { color: #000; background: rgba(255,255,255,0.4); }
   .mode-btn.active-std { background: var(--danger); color: #fff; }
   .mode-btn.active-zama { background: #000; color: var(--bg-page); }
   .mode-btn:disabled { opacity: 0.5; filter: grayscale(1); cursor: not-allowed; }
 
-  /* MAIN LAYOUT - FIX: min-height 0 prevents overflow */
+  /* MAIN LAYOUT */
   .layout { 
-    display: grid; 
-    grid-template-columns: 1fr 400px; 
-    flex: 1; 
-    min-height: 0; 
-    overflow: hidden; 
+    display: grid; grid-template-columns: 1fr 400px; 
+    flex: 1; min-height: 0; overflow: hidden; 
   }
   
   /* CANVAS */
@@ -82,15 +73,15 @@
   }
   svg { width: 100%; height: 100%; pointer-events: none; } 
   
-  /* TEACHING OVERLAY */
+  /* TEACHING OVERLAY - Positioned Higher */
   .teaching-box {
-    position: absolute; top: 15px; left: 50%; transform: translateX(-50%);
-    background: #000; border: 2px solid var(--bg-page); padding: 8px 20px; 
-    border-radius: 12px; width: 90%; max-width: 600px; text-align: center; 
+    position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+    background: #000; border: 2px solid var(--bg-page); padding: 10px 25px; 
+    border-radius: 12px; width: 90%; max-width: 650px; text-align: center; 
     box-shadow: 0 5px 20px rgba(0,0,0,0.8); z-index: 50;
   }
-  .teaching-title { color: var(--bg-page); font-size: 10px; font-weight: 900; margin-bottom: 2px; }
-  .teaching-text { color: #fff; font-size: 14px; line-height: 1.2; font-weight: 600; }
+  .teaching-title { color: var(--bg-page); font-size: 11px; font-weight: 900; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 1px; }
+  .teaching-text { color: #fff; font-size: 14px; line-height: 1.3; font-weight: 600; }
 
   /* CONTROLS */
   .controls { 
@@ -101,7 +92,6 @@
   .step-title { font-size: 12px; font-weight: 700; color: #fff; margin-bottom: 5px; }
   .step-desc { font-size: 11px; color: #ccc; line-height: 1.3; }
   
-  /* ACTION BUTTONS */
   .btn-control-row { display: flex; gap: 10px; flex-shrink: 0; }
   button.action-btn { 
     background: #333; border: 1px solid #555; padding: 14px; border-radius: 8px; 
@@ -115,7 +105,6 @@
   button:hover { transform: translateY(-2px); filter: brightness(1.1); }
   button:disabled { background: #333; color: #777; filter: grayscale(1); border-color: #444; cursor: not-allowed; }
 
-  /* LOG TERMINAL */
   .log-terminal { 
     flex: 1; background: #000; border-radius: 8px; border: 1px solid #333; 
     padding: 12px; font-family: 'Courier New', monospace; font-size: 13px; line-height: 1.4; color: var(--neon-green); overflow-y: auto; 
@@ -129,17 +118,11 @@
   .txt-detail { fill: #aaa; font-size: 12px; font-family: monospace; pointer-events: none; }
   .packet-text { fill: #000; font-size: 11px; font-weight: 900; pointer-events: none; }
 
-  /* FOOTER - FIX: Always visible, sticks to bottom */
+  /* FOOTER */
   footer {
-    flex-shrink: 0; 
-    background: #000; 
-    color: #888; 
-    padding: 8px; 
-    text-align: center;
-    font-size: 10px; 
-    border-top: 2px solid #222; 
-    z-index: 100;
-    padding-bottom: env(safe-area-inset-bottom); /* iPhone home bar fix */
+    flex-shrink: 0; background: #000; color: #888; padding: 8px; text-align: center;
+    font-size: 10px; border-top: 2px solid #222; z-index: 100;
+    padding-bottom: env(safe-area-inset-bottom); 
   }
   footer a { color: var(--bg-page); text-decoration: none; font-weight: 700; }
   .heart { color: var(--danger); font-size: 12px; vertical-align: middle; }
@@ -150,18 +133,13 @@
     .disclaimer { display: none; } 
     .branding { gap: 6px; }
     .zama-logo { height: 24px; }
-    
-    /* Vertical Stack: Canvas 50%, Controls Rest */
     .layout { grid-template-columns: 1fr; grid-template-rows: 50% 1fr; }
     .canvas-wrapper { border-right: none; border-bottom: 4px solid #000; }
-    
     .controls { border-left: none; padding: 10px; gap: 8px; }
     .step-card { display: none; } 
     .log-terminal { font-size: 11px; }
-    
     .btn-control-row { gap: 5px; }
     button.action-btn { padding: 10px; font-size: 11px; }
-    
     .txt-label { font-size: 18px; } 
     .txt-detail { font-size: 14px; }
   }
@@ -183,16 +161,19 @@
   }
   .modal-content {
     background: #151a23; border: 4px solid var(--bg-page); border-radius: 16px; 
-    width: 90%; max-width: 500px; max-height: 80vh; padding: 20px; 
+    width: 90%; max-width: 600px; max-height: 80vh; padding: 25px; 
     display: flex; flex-direction: column; box-shadow: 0 0 50px rgba(0,0,0,0.8); 
   }
-  .modal-header { font-size: 18px; font-weight: 800; margin-bottom: 10px; color: #fff; }
-  .modal-body { font-size: 13px; line-height: 1.5; color: #ddd; overflow-y: auto; }
+  .modal-header { font-size: 20px; font-weight: 800; margin-bottom: 15px; color: #fff; }
+  .modal-body { font-size: 14px; line-height: 1.6; color: #ddd; overflow-y: auto; padding-right: 5px; }
+  .modal-body p { margin-bottom: 15px; }
   .modal-list { margin-top: 10px; padding-left: 20px; border-left: 3px solid #555; }
   .modal-list li { margin-bottom: 8px; }
-  .modal-btn { margin-top: 15px; padding: 12px; font-size: 12px; font-weight: 900; border-radius: 8px; cursor: pointer; background: var(--bg-page); border: none; }
+  .modal-btn { margin-top: 15px; padding: 14px; font-size: 14px; font-weight: 900; border-radius: 8px; cursor: pointer; background: var(--bg-page); border: none; text-transform: uppercase; }
   
   #final-overlay { background: rgba(0,0,0,0.85); display: none; flex-direction: column; z-index: 99990; }
+  .final-content { text-align: center; }
+  .final-title { color: var(--bg-page); font-size: 24px; font-weight: 900; margin-bottom: 20px; }
   .final-btn { padding: 15px 30px; font-size: 16px; font-weight: 900; background: transparent; border: 3px solid var(--bg-page); color: var(--bg-page); border-radius: 50px; cursor: pointer; }
 </style>
 </head>
@@ -220,7 +201,7 @@
   <div class="canvas-wrapper">
     <div class="teaching-box" id="teach-box">
       <div class="teaching-title">STATUS</div>
-      <div class="teaching-text" id="teach-text">Idle. Click Start.</div>
+      <div class="teaching-text" id="teach-text">System Idle. Select mode & Start.</div>
     </div>
 
     <svg id="simSvg" viewBox="0 0 1000 700" preserveAspectRatio="xMidYMid meet">
@@ -228,7 +209,7 @@
         <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#888" /></marker>
       </defs>
 
-      <g transform="translate(0, 0)">
+      <g transform="translate(0, 100)">
         <path id="l-usr-rel" class="link relevant" d="M100 550 L 200 550" />
         <path id="l-rel-gw" class="link relevant" d="M300 550 L 480 550" />
         <path id="l-rel-host" class="link relevant" d="M250 510 C 250 200, 150 200, 150 180" />
@@ -279,7 +260,7 @@
   <div class="modal-content">
     <div class="modal-header" id="modal-title">Title</div>
     <div class="modal-body">
-      <p id="modal-msg" style="margin-bottom:15px; font-weight:bold;">Message</p>
+      <div id="modal-desc-content"></div>
       <ul class="modal-list" id="modal-details"></ul>
       <p id="modal-footer" style="margin-top:15px; font-weight:bold; color:#fff; border-top:1px solid #444; padding-top:10px;"></p>
     </div>
@@ -305,14 +286,12 @@ const app = (function() {
   let isRunning = false;
   let isPaused = false;
   let currentMode = 'zama';
-  const SPEED_FACTOR = 1.8; // Slightly faster for mobile patience
+  const SPEED_FACTOR = 1.8; 
 
-  // --- HELPERS TO PREVENT CRASHES ---
   function safeAddClass(id, cls) {
     const el = $(id);
     if(el && el.querySelector('rect')) el.querySelector('rect').classList.add(cls);
     else if(el) el.classList.add(cls);
-    else console.warn("Missing element:", id);
   }
 
   function safeRemoveClass(id, cls) {
@@ -377,9 +356,7 @@ const app = (function() {
     explain("Ready.");
   }
 
-  function explain(txt) {
-    teachText.innerText = txt;
-  }
+  function explain(txt) { teachText.innerText = txt; }
 
   function log(msg, type) {
     const div = document.createElement('div');
@@ -397,10 +374,7 @@ const app = (function() {
       let elapsed = 0;
       const timer = setInterval(() => {
         if(!isPaused) elapsed += 50;
-        if(elapsed >= total) {
-          clearInterval(timer);
-          resolve();
-        }
+        if(elapsed >= total) { clearInterval(timer); resolve(); }
       }, 50);
     });
   }
@@ -417,7 +391,7 @@ const app = (function() {
       function tick(t) {
         if(isPaused) { if(!start) start=t; pausedTime = t-start; requestAnimationFrame(tick); return; }
         if(!start) start=t;
-        const progress = Math.min((t-start-pausedTime)/(duration*SPEED_FACTOR), 1);
+        const progress = Math.min((t-start-pausedTime)/(1000*SPEED_FACTOR), 1);
         const pt = path.getPointAtLength(progress * len);
         body.setAttribute('cx', pt.x); body.setAttribute('cy', pt.y);
         text.setAttribute('x', pt.x); text.setAttribute('y', pt.y+4);
@@ -435,11 +409,11 @@ const app = (function() {
     }, 300);
   }
 
-  function showModal(title, msg, items, footer, isError) {
+  function showModal(title, htmlContent, items, footer, isError) {
     modal.style.display = 'flex';
     $('modal-title').innerText = title;
     $('modal-title').style.color = isError ? 'var(--danger)' : 'var(--bg-page)';
-    $('modal-msg').innerText = msg;
+    $('modal-desc-content').innerHTML = htmlContent;
     const list = $('modal-details');
     list.innerHTML = '';
     items.forEach(i => { const li = document.createElement('li'); li.innerHTML = i; list.appendChild(li); });
@@ -456,58 +430,155 @@ const app = (function() {
 
     try {
       if(currentMode === 'std') {
-        explain("Step 1: Plaintext Input.");
-        log("User sending [5, 10].", "normal");
-        await movePacket('l-std', '5,10', '#ff4d4d', 1500);
+        explain("Step 1: User sends plaintext numbers (5, 10) openly on the network.");
+        log("User inputting plaintext [5, 10].", "normal");
+        safeAddClass('node-usr', 'active-std');
+        await wait(800);
+        
+        log("Broadcasting transaction to mempool...", "err");
+        await movePacket('l-std', '5,10', '#ff4d4d');
+        safeRemoveClass('node-usr', 'active-std');
+        
         safeAddClass('node-host', 'active-std');
-        log("Host executed publicly.", "err");
+        log("Miner picking up transaction.", "err");
+        explain("Step 2: Host Chain computes 5+10 publicly. Everyone sees the math.");
+        await wait(1000);
         $('host-st').innerText = "State: 15 (VISIBLE)";
+        log("Host Chain executed op: ADD(5, 10).", "err");
+        log("Result '15' written to public storage.", "err");
         await wait(500);
-        showModal("Public Tx Done", "Data Exposed.", ["Inputs Visible.", "No Privacy."], "Result: 15", true);
+        
+        $('packet-body').style.opacity = 0; $('packet-text').style.opacity = 0;
+        
+        const publicDesc = `
+          <p><b>How Public Blockchains Work:</b> In a standard transaction, data is sent in <b>plaintext</b>. The miners need to see the data to verify the transaction logic (5 + 10 = 15). While this ensures correctness, it means <b>zero privacy</b>.</p>
+          <p>Because the data is visible in the mempool before it is finalized, it is vulnerable to <b>MEV (Maximal Extractable Value)</b> attacks, where bots front-run your trade. The final state '15' is permanently visible to the world.</p>
+        `;
+        
+        showModal(
+          "Public Transaction Complete", 
+          publicDesc, 
+          [
+            "<b>Broadcast:</b> Plaintext (5, 10) sent openly.",
+            "<b>Execution:</b> Logic verified publicly by all nodes.",
+            "<b>Storage:</b> Result '15' is permanently exposed.",
+            "<b>Risk:</b> High exposure to surveillance & MEV."
+          ], 
+          "Result: Everyone knows '15'.", 
+          true
+        );
+
       } else {
-        explain("Step 1: Encrypt & Send to Relayer.");
-        log("User Encrypting...", "zama");
-        await movePacket('l-usr-rel', 'Enc', '#ffd503', 800);
+        // ZAMA FLOW
+        explain("Phase 1: User generates ephemeral keys and encrypts inputs (5, 10) with Global Public Key.");
+        log("User generating ephemeral keys...", "zama");
+        safeAddClass('node-usr', 'active-zama');
+        await wait(500);
+        log("Encrypting inputs [5, 10] -> [ct1, ct2].", "zama");
+        await wait(500);
+        log("Generating ZK Proof of Knowledge (ZKPoK).", "zama");
+        
+        await movePacket('l-usr-rel', 'Enc+ZK', '#ffd503');
+        safeRemoveClass('node-usr', 'active-zama');
         
         safeAddClass('node-rel', 'active-mid');
-        log("Relayer processing...", "normal");
+        log("Relayer accepted packet. Paying gas fees.", "normal");
         await wait(500);
         
-        explain("Step 2: Relayer -> Gateway (Verify).");
-        await movePacket('l-rel-gw', 'ZK', '#ff9f1c', 800);
+        explain("Phase 1: Relayer forwards ZK Proofs to Gateway for validation.");
+        log("Relayer forwarding ZK Proofs to Gateway.", "normal");
+        await movePacket('l-rel-gw', 'ZK Proof', '#ff9f1c');
+        
         safeAddClass('node-gw', 'active-zama');
-        log("Gateway verifying proofs...", "zama");
+        log("Gateway verifying ZK Proofs...", "zama");
+        $('gw-st').innerText = "Verifying...";
         await wait(800);
+        $('gw-st').innerText = "Verified";
+        log("Proofs Valid. Signing attestation.", "zama");
         safeRemoveClass('node-gw', 'active-zama');
         
-        explain("Step 3: Relayer -> Host.");
-        await movePacket('l-rel-host', 'Tx', '#fff', 1000);
+        log("Relayer submitting transaction to Host Chain.", "normal");
+        await movePacket('l-rel-host', 'Tx', '#fff');
         safeRemoveClass('node-rel', 'active-mid');
         
-        explain("Step 4: Host -> Coprocessors.");
-        await movePacket('l-host-cp', 'Event', '#007aff', 1000);
+        safeAddClass('node-host', 'active-zama');
+        explain("Phase 2: Host Chain executes logic symbolically (using Handles).");
+        log("Host Chain executing smart contract...", "zama");
+        $('host-st').innerText = "Handle: 0x8a...";
+        log("Host encountered encrypted handle. Emitting Event.", "zama");
+        await wait(800);
+        
+        await movePacket('l-host-cp', 'Event', '#007aff');
+        safeRemoveClass('node-host', 'active-zama');
         
         safeAddClass('node-cp', 'active-zama');
-        log("Computing FHE...", "zama");
+        explain("Phase 2: Coprocessors perform blind arithmetic on encrypted data.");
+        log("Coprocessors picked up event.", "normal");
+        log("Computing: FHE_ADD(ct1, ct2)...", "zama");
         $('cp-bar').setAttribute('width', 180); $('cp-bar').style.transition = "width 2s";
         await wait(1500);
         
-        explain("Step 5: Sending Digest.");
-        await movePacket('l-cp-gw', 'Digest', '#00ff9d', 1000);
+        log("Computation complete. Result Ciphertext generated.", "zama");
+        log("Committing result digest to Gateway.", "normal");
+        await movePacket('l-cp-gw', 'Digest', '#00ff9d');
         safeRemoveClass('node-cp', 'active-zama');
         
-        explain("Step 6: Decrypt (KMS).");
-        await movePacket('l-gw-kms', 'Req', '#ff0055', 800);
-        ['s1','s2','s3'].forEach(id => $(id).style.fill = '#00ff9d');
-        log("KMS Threshold met.", "zama");
-        await wait(1000);
+        explain("Phase 3: Gateway requests Threshold Decryption from KMS.");
+        safeAddClass('node-gw', 'active-zama');
+        log("Gateway checking ACL (Access Control List).", "zama");
+        await wait(500);
+        log("Requesting decryption from KMS Cluster.", "zama");
+        await movePacket('l-gw-kms', 'Req', '#ff0055');
         
-        explain("Step 7: Oracle Delivery.");
-        await movePacket('l-gw-orc', '15', '#ff9f1c', 800);
-        await movePacket('l-orc-host', 'Callback', '#ff9f1c', 1000);
+        safeAddClass('node-kms', 'active-zama');
+        explain("Phase 3: KMS shards independently verify and sign partial decryptions.");
+        log("KMS Node 1 verifying request...", "zama");
+        $('s1').style.fill = '#00ff9d'; await wait(200);
+        log("KMS Node 2 verifying request...", "zama");
+        $('s2').style.fill = '#00ff9d'; await wait(200);
+        log("KMS Node 3 verifying request...", "zama");
+        $('s3').style.fill = '#00ff9d'; await wait(200);
         
-        $('host-st').innerText = "State: 15 (Encrypted)";
-        showModal("Secure Done", "Confidential.", ["Relayer Gas.", "Gateway Verify.", "KMS Decrypt."], "Result: 15", false);
+        log("Threshold met. Computing partial decryptions.", "zama");
+        await wait(800);
+        
+        log("Gateway aggregating partial shares.", "zama");
+        $('gw-st').innerText = "Result: 15";
+        safeRemoveClass('node-kms', 'active-zama');
+        
+        explain("Phase 4: Gateway sends decrypted result to Oracle for delivery.");
+        log("Gateway sending plaintext to Oracle.", "normal");
+        await movePacket('l-gw-orc', '15', '#ff9f1c');
+        safeRemoveClass('node-gw', 'active-zama');
+        
+        safeAddClass('node-orc', 'active-mid');
+        log("Oracle preparing Callback Transaction.", "normal");
+        await wait(500);
+        await movePacket('l-orc-host', 'Callback', '#ff9f1c');
+        safeRemoveClass('node-orc', 'active-mid');
+        
+        safeAddClass('node-host', 'active-zama');
+        log("Host Chain updated with decrypted result.", "zama");
+        await wait(500);
+        $('packet-body').style.opacity = 0; $('packet-text').style.opacity = 0;
+        
+        const zamaDesc = `
+          <p><b>How Zama fhEVM Works:</b> This transaction was end-to-end encrypted. The user's inputs (5, 10) were encrypted locally. The <b>Host Chain</b> didn't process the numbers; it processed "Handles" (references). The actual addition happened on <b>Coprocessors</b> which computed on the ciphertext without seeing the data.</p>
+          <p>To reveal the result, a <b>Threshold Protocol</b> was used. The KMS shards collaborated to decrypt the result only after verifying the user's permission. Finally, an <b>Oracle</b> securely bridged the result back to the chain. This ensures that <b>data remains confidential</b> throughout the entire lifecycle.</p>
+        `;
+
+        showModal(
+          "Secure Execution Complete", 
+          zamaDesc, 
+          [
+            "<b>Encryption:</b> Inputs hidden via ZK Proofs.",
+            "<b>Blind Compute:</b> Math performed on ciphertexts.",
+            "<b>Threshold KMS:</b> No single point of key failure.",
+            "<b>Oracle Delivery:</b> Trustless bridge back to chain."
+          ], 
+          "Result: You see '15'.", 
+          false
+        );
       }
     } catch(e) { console.error(e); alert("Error: "+e.message); }
     finally { 
