@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" />
-<title>Zama fhEVM Simulator - v30 Voice Edition</title>
+<title>Zama fhEVM Simulator - v30 Voice</title>
 <style>
   :root {
     /* COLORS */
@@ -56,6 +56,7 @@
     padding: 6px 12px; border-radius: 16px; font-size: 11px; font-weight: 800; cursor: pointer; 
     transition: all 0.2s; color: #555; border: none; background: transparent; outline: none; text-transform: uppercase;
   }
+  .mode-btn:hover { color: #000; background: rgba(255,255,255,0.4); }
   .mode-btn.active-std { background: var(--danger); color: #fff; }
   .mode-btn.active-zama { background: #000; color: var(--bg-page); }
   .mode-btn:disabled { opacity: 0.5; filter: grayscale(1); cursor: not-allowed; }
@@ -77,12 +78,12 @@
   /* TEACHING OVERLAY */
   .teaching-box {
     position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
-    background: #000; border: 2px solid var(--bg-page); padding: 10px 25px; 
-    border-radius: 12px; width: 90%; max-width: 650px; text-align: center; 
+    background: #000; border: 2px solid var(--bg-page); padding: 8px 20px; 
+    border-radius: 12px; width: 90%; max-width: 600px; text-align: center; 
     box-shadow: 0 5px 20px rgba(0,0,0,0.8); z-index: 50;
   }
-  .teaching-title { color: var(--bg-page); font-size: 11px; font-weight: 900; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 1px; }
-  .teaching-text { color: #fff; font-size: 14px; line-height: 1.3; font-weight: 600; }
+  .teaching-title { color: var(--bg-page); font-size: 10px; font-weight: 900; margin-bottom: 2px; }
+  .teaching-text { color: #fff; font-size: 14px; line-height: 1.2; font-weight: 600; }
 
   /* CONTROLS */
   .controls { 
@@ -100,20 +101,23 @@
   }
   button.btn-zama { background: var(--bg-page); color: #000; border: 2px solid #000; }
   button.btn-std { background: var(--danger); color: #fff; border: 2px solid #000; }
+  
+  /* PAUSE BUTTON */
   button.btn-pause { background: #fff; color:#000; border: 2px solid #000; }
   button.btn-pause.paused { background: #000; color: #fff; animation: blink 1s infinite; }
-  
-  /* AUDIO BUTTON STYLE */
-  button.btn-audio { background: #444; color: #fff; border: 1px solid #666; }
-  button.btn-audio.on { background: var(--neon-green); color: #000; border-color: #000; }
-
   @keyframes blink { 0%{opacity:1} 50%{opacity:0.7} 100%{opacity:1} }
+
+  /* VOICE BUTTON */
+  button.btn-voice { background: #222; color: #777; border: 1px solid #555; }
+  button.btn-voice.active-voice { background: var(--neon-green); color: #000; border: 2px solid #000; box-shadow: 0 0 10px var(--neon-green); }
+
   button:hover { transform: translateY(-2px); filter: brightness(1.1); }
   button:disabled { background: #333; color: #777; filter: grayscale(1); border-color: #444; cursor: not-allowed; }
 
+  /* LOG TERMINAL */
   .log-terminal { 
     flex: 1; background: #000; border-radius: 8px; border: 1px solid #333; 
-    padding: 12px; font-family: 'Courier New', monospace; font-size: 13px; line-height: 1.4; color: var(--neon-green); overflow-y: auto; 
+    padding: 12px; font-family: 'Courier New', monospace; font-size: 18px; line-height: 1.4; color: var(--neon-green); overflow-y: auto; 
   }
   .log-entry { margin-bottom: 6px; border-bottom: 1px solid #222; padding-bottom: 3px; }
   .highlight-red { color: var(--danger); font-weight: bold; }
@@ -122,7 +126,7 @@
   /* SVG TEXT */
   .txt-label { fill: #fff; font-size: 16px; font-weight: 800; font-family: sans-serif; pointer-events: none; }
   .txt-detail { fill: #aaa; font-size: 12px; font-family: monospace; pointer-events: none; }
-  .packet-text { fill: #000; font-size: 11px; font-weight: 900; pointer-events: none; }
+  .packet-text { fill: #fff; font-size: 12px; font-weight: 900; pointer-events: none; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
 
   /* FOOTER */
   footer {
@@ -145,7 +149,7 @@
     
     .controls { border-left: none; padding: 10px; gap: 8px; }
     .step-card { display: none; } 
-    .log-terminal { font-size: 11px; }
+    .log-terminal { font-size: 13px; } 
     .btn-control-row { gap: 5px; }
     button.action-btn { padding: 10px; font-size: 11px; }
     .txt-label { font-size: 18px; } 
@@ -172,10 +176,10 @@
   }
   .modal-content {
     background: #151a23; border: 4px solid var(--bg-page); border-radius: 16px; 
-    width: 90%; max-width: 650px; max-height: 85vh; padding: 25px; 
+    width: 90%; max-width: 500px; max-height: 85vh; padding: 25px; 
     display: flex; flex-direction: column; box-shadow: 0 0 50px rgba(0,0,0,0.8); 
   }
-  .modal-header { font-size: 20px; font-weight: 800; margin-bottom: 10px; color: #fff; flex-shrink: 0; }
+  .modal-header { font-size: 20px; font-weight: 800; margin-bottom: 10px; color: #fff; }
   .modal-body { font-size: 14px; line-height: 1.6; color: #ddd; overflow-y: auto; padding-right: 5px; }
   .modal-body p { margin-bottom: 15px; }
   .modal-list { margin-top: 10px; padding-left: 20px; border-left: 3px solid #555; }
@@ -210,7 +214,7 @@
   <div class="canvas-wrapper">
     <div class="teaching-box" id="teach-box">
       <div class="teaching-title">STATUS</div>
-      <div class="teaching-text" id="teach-text">Idle. Enable Audio for Voice Narration.</div>
+      <div class="teaching-text" id="teach-text">Idle. Click Start.</div>
     </div>
 
     <svg id="simSvg" viewBox="0 0 1000 900" preserveAspectRatio="xMidYMid meet">
@@ -250,13 +254,13 @@
     </div>
     
     <div class="btn-control-row">
-      <button id="btn-audio" class="action-btn btn-audio" onclick="app.toggleAudio()">🔇 AUDIO OFF</button>
+      <button id="btn-voice" class="action-btn btn-voice" onclick="app.toggleVoice()">🔇 VOICE OFF</button>
       <button id="btn-pause" class="action-btn btn-pause" onclick="app.togglePause()">PAUSE</button>
       <button id="btn-run" class="action-btn btn-zama" onclick="app.runSimulation()">START</button>
     </div>
     
     <div class="log-terminal" id="logger">
-      <div class="log-entry">System Ready.</div>
+      <div class="log-entry">System Ready. Enable Voice for narration.</div>
     </div>
   </div>
 </div>
@@ -295,32 +299,9 @@ const app = (function() {
   
   let isRunning = false;
   let isPaused = false;
-  let isMuted = true;
+  let isVoiceOn = false;
   let currentMode = 'zama';
   const SPEED_FACTOR = 1.8; 
-
-  function toggleAudio() {
-    isMuted = !isMuted;
-    const btn = $('btn-audio');
-    if(isMuted) {
-      btn.innerText = "🔇 AUDIO OFF";
-      btn.classList.remove('on');
-      window.speechSynthesis.cancel();
-    } else {
-      btn.innerText = "🔊 AUDIO ON";
-      btn.classList.add('on');
-      speak("Audio enabled.");
-    }
-  }
-
-  function speak(text) {
-    if(isMuted) return;
-    window.speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    u.rate = 1.1; 
-    u.volume = 1.0;
-    window.speechSynthesis.speak(u);
-  }
 
   function safeAddClass(id, cls) {
     const el = $(id);
@@ -334,12 +315,36 @@ const app = (function() {
     else if(el) el.classList.remove(cls);
   }
 
+  function toggleVoice() {
+    isVoiceOn = !isVoiceOn;
+    const btn = $('btn-voice');
+    if(isVoiceOn) {
+      btn.innerHTML = "🔊 VOICE ON";
+      btn.classList.add('active-voice');
+      speak("Voice narration enabled.");
+    } else {
+      btn.innerHTML = "🔇 VOICE OFF";
+      btn.classList.remove('active-voice');
+      window.speechSynthesis.cancel();
+    }
+  }
+
+  function speak(text) {
+    if(!isVoiceOn) return;
+    window.speechSynthesis.cancel(); // Stop current
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 1.1; 
+    utterance.pitch = 1.0;
+    window.speechSynthesis.speak(utterance);
+  }
+
   function togglePause() {
     if(!isRunning) return;
     isPaused = !isPaused;
     const btn = $('btn-pause');
     btn.innerHTML = isPaused ? "RESUME" : "PAUSE";
     btn.classList.toggle('paused', isPaused);
+    
     if(isPaused) window.speechSynthesis.pause();
     else window.speechSynthesis.resume();
   }
@@ -394,7 +399,7 @@ const app = (function() {
 
   function explain(txt) { 
     teachText.innerText = txt; 
-    speak(txt);
+    speak(txt); // Trigger Voice
   }
 
   function log(msg, type) {
@@ -402,7 +407,10 @@ const app = (function() {
     div.className = 'log-entry';
     if(type==='err') div.style.color = 'var(--danger)';
     if(type==='zama') div.style.color = 'var(--bg-page)';
-    div.innerText = `> ${msg}`;
+    
+    const time = new Date().toLocaleTimeString().split(' ')[0];
+    div.innerHTML = `<span style="color:#555; font-size:0.8em; margin-right:5px;">[${time}]</span> > ${msg}`;
+    
     $('logger').appendChild(div);
     $('logger').scrollTop = $('logger').scrollHeight;
   }
@@ -469,9 +477,14 @@ const app = (function() {
 
     try {
       if(currentMode === 'std') {
-        explain("Step 1: Plaintext Input. User sending plaintext numbers 5 and 10 openly on the network.");
+        explain("Step 1: Plaintext Input. User sends plaintext numbers 5 and 10 openly on the network.");
         log("User inputting plaintext [5, 10].", "normal");
-        await movePacket('l-std', '5,10', '#ff4d4d', 1500);
+        safeAddClass('node-usr', 'active-std');
+        await wait(800);
+        
+        log("Broadcasting transaction to mempool...", "err");
+        await movePacket('l-std', '5,10', '#ff4d4d');
+        safeRemoveClass('node-usr', 'active-std');
         
         safeAddClass('node-host', 'active-std');
         log("Host executed publicly.", "err");
@@ -489,15 +502,22 @@ const app = (function() {
         showModal("Public Transaction Complete", publicDesc, ["Broadcast: Plaintext sent openly.", "Execution: Public verification.", "Risk: High exposure."], "Result: 15", true);
       } else {
         explain("Step 1: Encrypt & Send to Relayer. User generating keys and encrypting inputs.");
-        log("User Encrypting...", "zama");
-        await movePacket('l-usr-rel', 'Enc', '#ffd503', 800);
+        log("User generating ephemeral keys...", "zama");
+        await wait(300);
+        log("Encrypting inputs [5, 10] -> [ct1, ct2].", "zama");
+        await wait(300);
+        log("Generating ZK Proof of Knowledge (ZKPoK).", "zama");
+        
+        safeAddClass('node-usr', 'active-zama');
+        await movePacket('l-usr-rel', 'Enc', '#ffd503');
+        safeRemoveClass('node-usr', 'active-zama');
         
         safeAddClass('node-rel', 'active-mid');
         log("Relayer processing...", "normal");
         await wait(500);
         
         explain("Step 2: Relayer forwards ZK Proofs to Gateway for validation.");
-        await movePacket('l-rel-gw', 'ZK', '#ff9f1c', 800);
+        await movePacket('l-rel-gw', 'ZK Proof', '#ff9f1c');
         safeAddClass('node-gw', 'active-zama');
         log("Gateway verifying proofs...", "zama");
         await wait(800);
@@ -505,7 +525,7 @@ const app = (function() {
         safeRemoveClass('node-gw', 'active-zama');
         
         explain("Step 3: Relayer submits Transaction to Host Chain.");
-        await movePacket('l-rel-host', 'Tx', '#fff', 1000);
+        await movePacket('l-rel-host', 'Tx', '#fff');
         safeRemoveClass('node-rel', 'active-mid');
         
         safeAddClass('node-host', 'active-host-exec');
@@ -513,7 +533,7 @@ const app = (function() {
         log("Host executing...", "zama");
         await wait(1000); // HOST GLOWS HERE
         
-        await movePacket('l-host-cp', 'Event', '#007aff', 1000);
+        await movePacket('l-host-cp', 'Event', '#007aff');
         safeRemoveClass('node-host', 'active-host-exec');
         
         safeAddClass('node-cp', 'active-zama');
@@ -523,18 +543,18 @@ const app = (function() {
         await wait(1500);
         
         explain("Step 6: Sending Result Digest to Gateway.");
-        await movePacket('l-cp-gw', 'Digest', '#00ff9d', 1000);
+        await movePacket('l-cp-gw', 'Digest', '#00ff9d');
         safeRemoveClass('node-cp', 'active-zama');
         
         explain("Step 7: Gateway requests Threshold Decryption from K M S.");
-        await movePacket('l-gw-kms', 'Req', '#ff0055', 800);
+        await movePacket('l-gw-kms', 'Req', '#ff0055');
         ['s1','s2','s3'].forEach(id => $(id).style.fill = '#00ff9d');
         log("KMS Threshold met.", "zama");
         await wait(1000);
         
         explain("Step 8: Gateway sends decrypted result to Oracle for delivery.");
-        await movePacket('l-gw-orc', '15', '#ff9f1c', 800);
-        await movePacket('l-orc-host', 'Callback', '#ff9f1c', 1000);
+        await movePacket('l-gw-orc', '15', '#ff9f1c');
+        await movePacket('l-orc-host', 'Callback', '#ff9f1c');
         
         $('host-st').innerText = "State: 15 (Encrypted)";
         
