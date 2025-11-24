@@ -3,19 +3,16 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" />
-<title>Zama fhEVM Simulator - v30 Voice</title>
+<title>Zama fhEVM Simulator - v31 Fixed</title>
 <style>
   :root {
-    /* COLORS */
     --bg-page: #ffd503; 
     --panel-dark: #151a23;
     --node-bg: rgba(20, 20, 25, 0.98);
-    
     --zama-blue: #007aff;
     --danger: #ff4d4d;
     --neon-green: #00ff9d;
     --neon-orange: #ff9f1c; 
-    
     --font: 'Inter', system-ui, -apple-system, sans-serif;
   }
   
@@ -33,7 +30,7 @@
   header { 
     flex-shrink: 0; padding: 0 20px; border-bottom: 3px solid #000; 
     display: flex; justify-content: space-between; align-items: center; 
-    background: var(--bg-page); z-index: 1000; height: 60px;
+    background: var(--bg-page); z-index: 2000; height: 60px;
     padding-top: env(safe-area-inset-top); 
   }
   
@@ -41,7 +38,6 @@
   .zama-logo { height: 30px; width: auto; mix-blend-mode: multiply; border: 1px solid rgba(0,0,0,0.1); }
   h1 { margin: 0; font-size: 18px; font-weight: 900; letter-spacing: -0.5px; text-transform: uppercase; white-space: nowrap; }
 
-  /* DISCLAIMER */
   .disclaimer {
     flex: 2; text-align: center; font-size: 11px; line-height: 1.2; color: #333;
     border-left: 1px solid rgba(0,0,0,0.1); border-right: 1px solid rgba(0,0,0,0.1);
@@ -49,19 +45,17 @@
   }
   .disclaimer a { color: #000; font-weight: 800; text-decoration: underline; }
   
-  /* BUTTONS */
   .mode-wrapper { flex: 1; display: flex; justify-content: flex-end; }
   .mode-switch { display: flex; background: rgba(0,0,0,0.1); border: 2px solid #000; border-radius: 20px; padding: 3px; gap: 3px; }
   .mode-btn { 
     padding: 6px 12px; border-radius: 16px; font-size: 11px; font-weight: 800; cursor: pointer; 
     transition: all 0.2s; color: #555; border: none; background: transparent; outline: none; text-transform: uppercase;
   }
-  .mode-btn:hover { color: #000; background: rgba(255,255,255,0.4); }
   .mode-btn.active-std { background: var(--danger); color: #fff; }
   .mode-btn.active-zama { background: #000; color: var(--bg-page); }
   .mode-btn:disabled { opacity: 0.5; filter: grayscale(1); cursor: not-allowed; }
 
-  /* MAIN LAYOUT */
+  /* LAYOUT */
   .layout { 
     display: grid; 
     grid-template-columns: 1fr 400px; 
@@ -72,6 +66,7 @@
   .canvas-wrapper { 
     position: relative; background: radial-gradient(circle at 50% 50%, #2a2a2a 0%, #000000 100%); 
     overflow: hidden; border-right: 4px solid #000; display: flex; align-items: center; justify-content: center;
+    z-index: 1; /* Low Z-Index */
   }
   svg { width: 100%; height: 100%; pointer-events: none; } 
   
@@ -85,90 +80,82 @@
   .teaching-title { color: var(--bg-page); font-size: 10px; font-weight: 900; margin-bottom: 2px; }
   .teaching-text { color: #fff; font-size: 14px; line-height: 1.2; font-weight: 600; }
 
-  /* CONTROLS */
+  /* CONTROLS - High Z-Index to ensure clicks work */
   .controls { 
     background: var(--panel-dark); padding: 20px; display: flex; flex-direction: column; 
-    gap: 15px; z-index: 60; border-left: 4px solid #000; overflow: hidden; 
+    gap: 15px; z-index: 2000; border-left: 4px solid #000; overflow: hidden; 
   }
   .step-card { background: #000; padding: 12px; border-radius: 8px; border: 1px solid #333; flex-shrink: 0; }
   .step-title { font-size: 12px; font-weight: 700; color: #fff; margin-bottom: 5px; }
   .step-desc { font-size: 11px; color: #ccc; line-height: 1.3; }
   
   .btn-control-row { display: flex; gap: 10px; flex-shrink: 0; }
+  
+  /* GENERIC BUTTON STYLE */
+  button { cursor: pointer; user-select: none; }
+
   button.action-btn { 
     background: #333; border: 1px solid #555; padding: 14px; border-radius: 8px; 
-    color: #fff; font-weight: 800; cursor: pointer; transition: transform 0.1s; width: 100%; font-size: 13px; text-transform: uppercase;
+    color: #fff; font-weight: 800; transition: transform 0.1s; width: 100%; font-size: 13px; text-transform: uppercase;
   }
   button.btn-zama { background: var(--bg-page); color: #000; border: 2px solid #000; }
   button.btn-std { background: var(--danger); color: #fff; border: 2px solid #000; }
-  
-  /* PAUSE BUTTON */
   button.btn-pause { background: #fff; color:#000; border: 2px solid #000; }
   button.btn-pause.paused { background: #000; color: #fff; animation: blink 1s infinite; }
+  
+  /* AUDIO BUTTON */
+  button.btn-audio { background: #222; color: #777; border: 1px solid #555; }
+  button.btn-audio.on { background: var(--neon-green); color: #000; border: 2px solid #000; box-shadow: 0 0 8px var(--neon-green); }
+
   @keyframes blink { 0%{opacity:1} 50%{opacity:0.7} 100%{opacity:1} }
-
-  /* VOICE BUTTON */
-  button.btn-voice { background: #222; color: #777; border: 1px solid #555; }
-  button.btn-voice.active-voice { background: var(--neon-green); color: #000; border: 2px solid #000; box-shadow: 0 0 10px var(--neon-green); }
-
   button:hover { transform: translateY(-2px); filter: brightness(1.1); }
   button:disabled { background: #333; color: #777; filter: grayscale(1); border-color: #444; cursor: not-allowed; }
 
-  /* LOG TERMINAL */
   .log-terminal { 
     flex: 1; background: #000; border-radius: 8px; border: 1px solid #333; 
-    padding: 12px; font-family: 'Courier New', monospace; font-size: 18px; line-height: 1.4; color: var(--neon-green); overflow-y: auto; 
+    padding: 12px; font-family: 'Courier New', monospace; font-size: 13px; line-height: 1.4; color: var(--neon-green); overflow-y: auto; 
   }
   .log-entry { margin-bottom: 6px; border-bottom: 1px solid #222; padding-bottom: 3px; }
   .highlight-red { color: var(--danger); font-weight: bold; }
   .highlight-yellow { color: var(--bg-page); font-weight: bold; }
 
-  /* SVG TEXT */
   .txt-label { fill: #fff; font-size: 16px; font-weight: 800; font-family: sans-serif; pointer-events: none; }
   .txt-detail { fill: #aaa; font-size: 12px; font-family: monospace; pointer-events: none; }
   .packet-text { fill: #fff; font-size: 12px; font-weight: 900; pointer-events: none; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
 
-  /* FOOTER */
   footer {
     flex-shrink: 0; background: #000; color: #888; padding: 8px; text-align: center;
-    font-size: 10px; border-top: 2px solid #222; z-index: 100;
+    font-size: 10px; border-top: 2px solid #222; z-index: 3000;
     padding-bottom: env(safe-area-inset-bottom); 
   }
   footer a { color: var(--bg-page); text-decoration: none; font-weight: 700; }
   .heart { color: var(--danger); font-size: 12px; vertical-align: middle; }
 
-  /* RESPONSIVE OVERRIDES */
   @media (max-width: 900px) {
     h1 { font-size: 14px; } 
     .disclaimer { display: none; } 
     .branding { gap: 6px; }
     .zama-logo { height: 24px; }
-    
     .layout { grid-template-columns: 1fr; grid-template-rows: 50% 1fr; }
     .canvas-wrapper { border-right: none; border-bottom: 4px solid #000; }
-    
     .controls { border-left: none; padding: 10px; gap: 8px; }
     .step-card { display: none; } 
-    .log-terminal { font-size: 13px; } 
+    .log-terminal { font-size: 11px; }
     .btn-control-row { gap: 5px; }
     button.action-btn { padding: 10px; font-size: 11px; }
     .txt-label { font-size: 18px; } 
     .txt-detail { font-size: 14px; }
   }
 
-  /* SVG STYLES */
   .node-rect { fill: var(--node-bg); stroke: #555; stroke-width: 2; transition: all 0.3s; }
-  
   .node-rect.active-zama { stroke: var(--bg-page); stroke-width: 4; fill: rgba(255, 213, 3, 0.15); filter: drop-shadow(0 0 12px rgba(255, 213, 3, 0.6)); }
   .node-rect.active-std { stroke: var(--danger); stroke-width: 4; fill: rgba(255, 77, 77, 0.15); filter: drop-shadow(0 0 12px rgba(255, 77, 77, 0.6)); }
   .node-rect.active-mid { stroke: var(--neon-orange); stroke-width: 3; fill: rgba(255, 159, 28, 0.15); filter: drop-shadow(0 0 10px rgba(255, 159, 28, 0.5)); }
   .node-rect.active-host-exec { stroke: #fff; stroke-width: 4; fill: rgba(255,255,255,0.2); filter: drop-shadow(0 0 15px rgba(255,255,255,0.5)); }
-
   .packet { stroke: #fff; stroke-width: 3; opacity: 0; }
   .link { fill: none; stroke: #444; stroke-width: 2; stroke-dasharray: 6 6; opacity: 0.2; }
   .link.relevant { opacity: 1; stroke: #888; }
 
-  /* MODALS */
   .modal-overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(0,0,0,0.9); backdrop-filter: blur(5px); display: none; 
@@ -176,10 +163,10 @@
   }
   .modal-content {
     background: #151a23; border: 4px solid var(--bg-page); border-radius: 16px; 
-    width: 90%; max-width: 500px; max-height: 85vh; padding: 25px; 
+    width: 90%; max-width: 600px; max-height: 85vh; padding: 25px; 
     display: flex; flex-direction: column; box-shadow: 0 0 50px rgba(0,0,0,0.8); 
   }
-  .modal-header { font-size: 20px; font-weight: 800; margin-bottom: 10px; color: #fff; }
+  .modal-header { font-size: 20px; font-weight: 800; margin-bottom: 10px; color: #fff; flex-shrink: 0; }
   .modal-body { font-size: 14px; line-height: 1.6; color: #ddd; overflow-y: auto; padding-right: 5px; }
   .modal-body p { margin-bottom: 15px; }
   .modal-list { margin-top: 10px; padding-left: 20px; border-left: 3px solid #555; }
@@ -197,15 +184,11 @@
     <img src="logo.jpg" alt="Logo" class="zama-logo" onerror="this.style.backgroundColor='white'" />
     <h1>Zama <span>FHEVM Sim</span></h1>
   </div>
-  
-  <div class="disclaimer">
-    Based on <a href="https://github.com/zama-ai/fhevm/blob/main/fhevm-whitepaper.pdf" target="_blank">Zama Whitepaper</a>. Simplified for edu.
-  </div>
-
+  <div class="disclaimer">Based on <a href="https://github.com/zama-ai/fhevm/blob/main/fhevm-whitepaper.pdf" target="_blank">Zama Whitepaper</a>. Simplified for edu.</div>
   <div class="mode-wrapper">
     <div class="mode-switch">
-      <button id="mode-std" class="mode-btn" onclick="app.setMode('std')">Public</button>
-      <button id="mode-zama" class="mode-btn active-zama" onclick="app.setMode('zama')">Zama</button>
+      <button id="mode-std" class="mode-btn" onclick="window.setMode('std')">Public</button>
+      <button id="mode-zama" class="mode-btn active-zama" onclick="window.setMode('zama')">Zama</button>
     </div>
   </div>
 </header>
@@ -214,14 +197,13 @@
   <div class="canvas-wrapper">
     <div class="teaching-box" id="teach-box">
       <div class="teaching-title">STATUS</div>
-      <div class="teaching-text" id="teach-text">Idle. Click Start.</div>
+      <div class="teaching-text" id="teach-text">Idle. Enable Audio & Click Start.</div>
     </div>
 
     <svg id="simSvg" viewBox="0 0 1000 900" preserveAspectRatio="xMidYMid meet">
       <defs>
         <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#888" /></marker>
       </defs>
-
       <g transform="translate(0, 120)">
         <path id="l-usr-rel" class="link relevant" d="M100 550 L 200 550" />
         <path id="l-rel-gw" class="link relevant" d="M300 550 L 480 550" />
@@ -254,13 +236,13 @@
     </div>
     
     <div class="btn-control-row">
-      <button id="btn-voice" class="action-btn btn-voice" onclick="app.toggleVoice()">🔇 VOICE OFF</button>
-      <button id="btn-pause" class="action-btn btn-pause" onclick="app.togglePause()">PAUSE</button>
-      <button id="btn-run" class="action-btn btn-zama" onclick="app.runSimulation()">START</button>
+      <button id="btn-audio" class="action-btn btn-audio" onclick="window.toggleAudio()">🔇 VOICE OFF</button>
+      <button id="btn-pause" class="action-btn btn-pause" onclick="window.togglePause()">PAUSE</button>
+      <button id="btn-run" class="action-btn btn-zama" onclick="window.runSimulation()">START</button>
     </div>
     
     <div class="log-terminal" id="logger">
-      <div class="log-entry">System Ready. Enable Voice for narration.</div>
+      <div class="log-entry">System Ready.</div>
     </div>
   </div>
 </div>
@@ -278,303 +260,290 @@
       <ul class="modal-list" id="modal-details"></ul>
       <p id="modal-footer" style="margin-top:15px; font-weight:bold; color:#fff; border-top:1px solid #444; padding-top:10px;"></p>
     </div>
-    <button class="modal-btn" id="modal-close" onclick="app.closeModal()">CLOSE</button>
+    <button class="modal-btn" id="modal-close" onclick="window.closeModal()">CLOSE</button>
   </div>
 </div>
 
 <div id="final-overlay" class="modal-overlay">
   <div class="final-content">
     <div class="final-title" style="color:var(--bg-page); margin-bottom:20px; font-size:24px; font-weight:900;">SIMULATION DONE</div>
-    <button class="final-btn" onclick="app.resetApp()">RESET</button>
+    <button class="final-btn" onclick="window.resetApp()">RESET</button>
   </div>
 </div>
 
 <script>
-const app = (function() {
-  const $ = id => document.getElementById(id);
-  const logBox = $('logger');
-  const teachText = $('teach-text');
-  const modal = $('result-modal');
-  const finalOverlay = $('final-overlay');
+// EXPLICIT GLOBAL ASSIGNMENT
+window.isRunning = false;
+window.isPaused = false;
+window.isVoiceOn = false; // Default Off
+window.currentMode = 'zama';
+const SPEED_FACTOR = 1.8;
+
+const $ = id => document.getElementById(id);
+
+window.toggleAudio = function() {
+  window.isVoiceOn = !window.isVoiceOn;
+  const btn = $('btn-audio');
+  if(window.isVoiceOn) {
+    btn.innerHTML = "🔊 VOICE ON";
+    btn.classList.add('on');
+    speak("Voice narration enabled.");
+  } else {
+    btn.innerHTML = "🔇 VOICE OFF";
+    btn.classList.remove('on');
+    window.speechSynthesis.cancel();
+  }
+};
+
+function speak(text) {
+  if(!window.isVoiceOn) return;
+  window.speechSynthesis.cancel();
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.rate = 1.1; 
+  utterance.pitch = 1.0;
+  // Browsers block auto-play unless triggered by user interaction first
+  window.speechSynthesis.speak(utterance);
+}
+
+function safeAddClass(id, cls) {
+  const el = $(id);
+  if(el && el.querySelector('rect')) el.querySelector('rect').classList.add(cls);
+  else if(el) el.classList.add(cls);
+}
+
+function safeRemoveClass(id, cls) {
+  const el = $(id);
+  if(el && el.querySelector('rect')) el.querySelector('rect').classList.remove(cls);
+  else if(el) el.classList.remove(cls);
+}
+
+window.togglePause = function() {
+  if(!window.isRunning) return;
+  window.isPaused = !window.isPaused;
+  const btn = $('btn-pause');
+  btn.innerHTML = window.isPaused ? "RESUME" : "PAUSE";
+  btn.classList.toggle('paused', window.isPaused);
   
-  let isRunning = false;
-  let isPaused = false;
-  let isVoiceOn = false;
-  let currentMode = 'zama';
-  const SPEED_FACTOR = 1.8; 
+  if(window.isPaused) window.speechSynthesis.pause();
+  else window.speechSynthesis.resume();
+};
 
-  function safeAddClass(id, cls) {
-    const el = $(id);
-    if(el && el.querySelector('rect')) el.querySelector('rect').classList.add(cls);
-    else if(el) el.classList.add(cls);
+window.setMode = function(m) {
+  if(window.isRunning) return;
+  window.currentMode = m;
+  $('mode-std').className = `mode-btn ${m==='std'?'active-std':''}`;
+  $('mode-zama').className = `mode-btn ${m==='zama'?'active-zama':''}`;
+  
+  const btn = $('btn-run');
+  const title = $('step-title');
+  const desc = $('step-desc');
+  
+  if(m==='std') {
+    btn.className = 'action-btn btn-std';
+    btn.innerText = "START PUBLIC";
+    title.style.color = "var(--danger)";
+    title.innerText = "PUBLIC BLOCKCHAIN";
+    desc.innerText = "Transparent data. No privacy.";
+  } else {
+    btn.className = 'action-btn btn-zama';
+    btn.innerText = "START ZAMA";
+    title.style.color = "var(--bg-page)";
+    title.innerText = "ZAMA FHEVM";
+    desc.innerText = "Full encrypted flow.";
   }
+  window.resetVisuals();
+};
 
-  function safeRemoveClass(id, cls) {
-    const el = $(id);
-    if(el && el.querySelector('rect')) el.querySelector('rect').classList.remove(cls);
-    else if(el) el.classList.remove(cls);
-  }
+window.resetVisuals = function() {
+  $('logger').innerHTML = '';
+  $('host-st').innerText = "State: -";
+  $('gw-st').innerText = "Idle";
+  $('cp-bar').setAttribute('width', 0);
+  document.querySelectorAll('.node-rect').forEach(el => el.classList.remove('active-zama','active-std','active-mid', 'active-host-exec'));
+  $('packet-body').style.opacity = 0;
+  $('packet-text').style.opacity = 0;
+  ['s1','s2','s3'].forEach(id => $(id).style.fill = '#333');
+};
 
-  function toggleVoice() {
-    isVoiceOn = !isVoiceOn;
-    const btn = $('btn-voice');
-    if(isVoiceOn) {
-      btn.innerHTML = "🔊 VOICE ON";
-      btn.classList.add('active-voice');
-      speak("Voice narration enabled.");
+window.resetApp = function() {
+  $('final-overlay').style.display = 'none';
+  window.isRunning = false;
+  $('btn-run').disabled = false;
+  $('btn-run').innerText = "START";
+  $('mode-std').disabled = false;
+  $('mode-zama').disabled = false;
+  window.resetVisuals();
+  explain("Ready.");
+};
+
+function explain(txt) { 
+  $('teach-text').innerText = txt; 
+  speak(txt);
+}
+
+function log(msg, type) {
+  const div = document.createElement('div');
+  div.className = 'log-entry';
+  if(type==='err') div.style.color = 'var(--danger)';
+  if(type==='zama') div.style.color = 'var(--bg-page)';
+  
+  const time = new Date().toLocaleTimeString().split(' ')[0];
+  div.innerHTML = `<span style="color:#555; font-size:0.8em; margin-right:5px;">[${time}]</span> > ${msg}`;
+  
+  $('logger').appendChild(div);
+  $('logger').scrollTop = $('logger').scrollHeight;
+}
+
+function wait(ms) {
+  return new Promise(resolve => {
+    const total = ms * SPEED_FACTOR;
+    let elapsed = 0;
+    const timer = setInterval(() => {
+      if(!window.isPaused) elapsed += 50;
+      if(elapsed >= total) { clearInterval(timer); resolve(); }
+    }, 50);
+  });
+}
+
+function movePacket(pathId, label, color) {
+  return new Promise(resolve => {
+    const path = $(pathId);
+    if(!path) { resolve(); return; }
+    const len = path.getTotalLength();
+    const body = $('packet-body');
+    const text = $('packet-text');
+    body.style.opacity = 1; body.style.fill = color; text.style.opacity = 1; text.textContent = label;
+    let start = null, pausedTime = 0;
+    function tick(t) {
+      if(window.isPaused) { if(!start) start=t; pausedTime = t-start; requestAnimationFrame(tick); return; }
+      if(!start) start=t;
+      const progress = Math.min((t-start-pausedTime)/(1000*SPEED_FACTOR), 1);
+      const pt = path.getPointAtLength(progress * len);
+      body.setAttribute('cx', pt.x); body.setAttribute('cy', pt.y);
+      text.setAttribute('x', pt.x); text.setAttribute('y', pt.y+4);
+      if(progress < 1) requestAnimationFrame(tick); else resolve();
+    }
+    requestAnimationFrame(tick);
+  });
+}
+
+window.closeModal = function() {
+  $('result-modal').classList.remove('show-modal');
+  setTimeout(()=> {
+      $('result-modal').style.display='none';
+      $('final-overlay').style.display = 'flex';
+  }, 300);
+};
+
+function showModal(title, htmlContent, items, footer, isError) {
+  const m = $('result-modal');
+  m.style.display = 'flex';
+  $('modal-title').innerText = title;
+  $('modal-title').style.color = isError ? 'var(--danger)' : 'var(--bg-page)';
+  $('modal-desc-content').innerHTML = htmlContent;
+  const list = $('modal-details');
+  list.innerHTML = '';
+  items.forEach(i => { const li = document.createElement('li'); li.innerHTML = i; list.appendChild(li); });
+  $('modal-footer').innerText = footer;
+  setTimeout(()=> m.classList.add('show-modal'), 10);
+}
+
+window.runSimulation = async function() {
+  window.isRunning = true;
+  $('btn-run').disabled = true;
+  $('mode-std').disabled = true;
+  $('mode-zama').disabled = true;
+  window.resetVisuals();
+
+  try {
+    if(window.currentMode === 'std') {
+      explain("Step 1: Plaintext Input. User sends plaintext numbers 5 and 10 openly on the network.");
+      log("User inputting plaintext [5, 10].", "normal");
+      safeAddClass('node-usr', 'active-std');
+      await wait(800);
+      
+      log("Broadcasting transaction to mempool...", "err");
+      await movePacket('l-std', '5,10', '#ff4d4d');
+      safeRemoveClass('node-usr', 'active-std');
+      
+      safeAddClass('node-host', 'active-std');
+      log("Host executed publicly.", "err");
+      
+      await wait(1000); 
+      
+      $('host-st').innerText = "State: 15 (VISIBLE)";
+      
+      const publicDesc = `
+        <p><b>How Public Blockchains Work:</b> In a standard transaction, data is sent in <b>plaintext</b>. The miners need to see the data to verify the transaction logic (5 + 10 = 15). While this ensures correctness, it means <b>zero privacy</b>.</p>
+        <p>Because the data is visible in the mempool before it is finalized, it is vulnerable to <b>MEV (Maximal Extractable Value)</b> attacks, where bots front-run your trade. The final state '15' is permanently visible to the world.</p>
+      `;
+      
+      showModal("Public Transaction Complete", publicDesc, ["Broadcast: Plaintext sent openly.", "Execution: Public verification.", "Risk: High exposure."], "Result: 15", true);
     } else {
-      btn.innerHTML = "🔇 VOICE OFF";
-      btn.classList.remove('active-voice');
-      window.speechSynthesis.cancel();
+      explain("Step 1: Encrypt & Send to Relayer. User generating keys and encrypting inputs.");
+      log("User Encrypting...", "zama");
+      await movePacket('l-usr-rel', 'Enc', '#ffd503', 800);
+      
+      safeAddClass('node-rel', 'active-mid');
+      log("Relayer processing...", "normal");
+      await wait(500);
+      
+      explain("Step 2: Relayer forwards ZK Proofs to Gateway for validation.");
+      await movePacket('l-rel-gw', 'ZK', '#ff9f1c', 800);
+      safeAddClass('node-gw', 'active-zama');
+      log("Gateway verifying proofs...", "zama");
+      await wait(800);
+      $('gw-st').innerText = "Verified";
+      safeRemoveClass('node-gw', 'active-zama');
+      
+      explain("Step 3: Relayer submits Transaction to Host Chain.");
+      await movePacket('l-rel-host', 'Tx', '#fff', 1000);
+      safeRemoveClass('node-rel', 'active-mid');
+      
+      safeAddClass('node-host', 'active-host-exec');
+      explain("Step 4: Host Chain executes logic symbolically using Handles.");
+      log("Host executing...", "zama");
+      await wait(1000);
+      
+      await movePacket('l-host-cp', 'Event', '#007aff', 1000);
+      safeRemoveClass('node-host', 'active-host-exec');
+      
+      safeAddClass('node-cp', 'active-zama');
+      explain("Step 5: Coprocessors perform blind arithmetic on encrypted data.");
+      log("Computing FHE...", "zama");
+      $('cp-bar').setAttribute('width', 180); $('cp-bar').style.transition = "width 2s";
+      await wait(1500);
+      
+      explain("Step 6: Sending Result Digest to Gateway.");
+      await movePacket('l-cp-gw', 'Digest', '#00ff9d', 1000);
+      safeRemoveClass('node-cp', 'active-zama');
+      
+      explain("Step 7: Gateway requests Threshold Decryption from K M S.");
+      await movePacket('l-gw-kms', 'Req', '#ff0055', 800);
+      ['s1','s2','s3'].forEach(id => $(id).style.fill = '#00ff9d');
+      log("KMS Threshold met.", "zama");
+      await wait(1000);
+      
+      explain("Step 8: Gateway sends decrypted result to Oracle for delivery.");
+      await movePacket('l-gw-orc', '15', '#ff9f1c', 800);
+      await movePacket('l-orc-host', 'Callback', '#ff9f1c', 1000);
+      
+      $('host-st').innerText = "State: 15 (Encrypted)";
+      
+      const zamaDesc = `
+        <p><b>How Zama fhEVM Works:</b> This transaction was end-to-end encrypted. The user's inputs (5, 10) were encrypted locally. The <b>Host Chain</b> didn't process the numbers; it processed "Handles" (references). The actual addition happened on <b>Coprocessors</b> which computed on the ciphertext without seeing the data.</p>
+        <p>To reveal the result, a <b>Threshold Protocol</b> was used. The KMS shards collaborated to decrypt the result only after verifying the user's permission. Finally, an <b>Oracle</b> securely bridged the result back to the chain. This ensures that <b>data remains confidential</b> throughout the entire lifecycle.</p>
+      `;
+      
+      showModal("Secure Done", zamaDesc, ["Encryption: Inputs hidden via ZK.", "Blind Compute: Math on ciphertexts.", "KMS: No single key failure point."], "Result: 15", false);
+    }
+  } catch(e) { console.error(e); alert("Error: "+e.message); }
+  finally { 
+    if(window.currentMode === 'std' && !$('result-modal').classList.contains('show-modal')) {
+        window.isRunning = false; $('btn-run').disabled = false; $('btn-run').innerText = "RESET";
     }
   }
-
-  function speak(text) {
-    if(!isVoiceOn) return;
-    window.speechSynthesis.cancel(); // Stop current
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = 1.1; 
-    utterance.pitch = 1.0;
-    window.speechSynthesis.speak(utterance);
-  }
-
-  function togglePause() {
-    if(!isRunning) return;
-    isPaused = !isPaused;
-    const btn = $('btn-pause');
-    btn.innerHTML = isPaused ? "RESUME" : "PAUSE";
-    btn.classList.toggle('paused', isPaused);
-    
-    if(isPaused) window.speechSynthesis.pause();
-    else window.speechSynthesis.resume();
-  }
-
-  function setMode(m) {
-    if(isRunning) return;
-    currentMode = m;
-    $('mode-std').className = `mode-btn ${m==='std'?'active-std':''}`;
-    $('mode-zama').className = `mode-btn ${m==='zama'?'active-zama':''}`;
-    
-    const btn = $('btn-run');
-    const title = $('step-title');
-    const desc = $('step-desc');
-    
-    if(m==='std') {
-      btn.className = 'action-btn btn-std';
-      btn.innerText = "START PUBLIC";
-      title.style.color = "var(--danger)";
-      title.innerText = "PUBLIC BLOCKCHAIN";
-      desc.innerText = "Transparent data. No privacy.";
-    } else {
-      btn.className = 'action-btn btn-zama';
-      btn.innerText = "START ZAMA";
-      title.style.color = "var(--bg-page)";
-      title.innerText = "ZAMA FHEVM";
-      desc.innerText = "Full encrypted flow.";
-    }
-    resetVisuals();
-  }
-
-  function resetVisuals() {
-    logBox.innerHTML = '';
-    $('host-st').innerText = "State: -";
-    $('gw-st').innerText = "Idle";
-    $('cp-bar').setAttribute('width', 0);
-    document.querySelectorAll('.node-rect').forEach(el => el.classList.remove('active-zama','active-std','active-mid', 'active-host-exec'));
-    $('packet-body').style.opacity = 0;
-    $('packet-text').style.opacity = 0;
-    ['s1','s2','s3'].forEach(id => $(id).style.fill = '#333');
-  }
-
-  function resetApp() {
-    finalOverlay.style.display = 'none';
-    isRunning = false;
-    $('btn-run').disabled = false;
-    $('btn-run').innerText = "START";
-    $('mode-std').disabled = false;
-    $('mode-zama').disabled = false;
-    resetVisuals();
-    explain("Ready.");
-  }
-
-  function explain(txt) { 
-    teachText.innerText = txt; 
-    speak(txt); // Trigger Voice
-  }
-
-  function log(msg, type) {
-    const div = document.createElement('div');
-    div.className = 'log-entry';
-    if(type==='err') div.style.color = 'var(--danger)';
-    if(type==='zama') div.style.color = 'var(--bg-page)';
-    
-    const time = new Date().toLocaleTimeString().split(' ')[0];
-    div.innerHTML = `<span style="color:#555; font-size:0.8em; margin-right:5px;">[${time}]</span> > ${msg}`;
-    
-    $('logger').appendChild(div);
-    $('logger').scrollTop = $('logger').scrollHeight;
-  }
-
-  function wait(ms) {
-    return new Promise(resolve => {
-      const total = ms * SPEED_FACTOR;
-      let elapsed = 0;
-      const timer = setInterval(() => {
-        if(!isPaused) elapsed += 50;
-        if(elapsed >= total) { clearInterval(timer); resolve(); }
-      }, 50);
-    });
-  }
-
-  function movePacket(pathId, label, color, duration=1000) {
-    return new Promise(resolve => {
-      const path = $(pathId);
-      if(!path) { resolve(); return; }
-      const len = path.getTotalLength();
-      const body = $('packet-body');
-      const text = $('packet-text');
-      body.style.opacity = 1; body.style.fill = color; text.style.opacity = 1; text.textContent = label;
-      let start = null, pausedTime = 0;
-      function tick(t) {
-        if(isPaused) { if(!start) start=t; pausedTime = t-start; requestAnimationFrame(tick); return; }
-        if(!start) start=t;
-        const progress = Math.min((t-start-pausedTime)/(1000*SPEED_FACTOR), 1);
-        const pt = path.getPointAtLength(progress * len);
-        body.setAttribute('cx', pt.x); body.setAttribute('cy', pt.y);
-        text.setAttribute('x', pt.x); text.setAttribute('y', pt.y+4);
-        if(progress < 1) requestAnimationFrame(tick); else resolve();
-      }
-      requestAnimationFrame(tick);
-    });
-  }
-
-  function closeModal() {
-    modal.classList.remove('show-modal');
-    setTimeout(()=> {
-        modal.style.display='none';
-        finalOverlay.style.display = 'flex';
-    }, 300);
-  }
-
-  function showModal(title, htmlContent, items, footer, isError) {
-    modal.style.display = 'flex';
-    $('modal-title').innerText = title;
-    $('modal-title').style.color = isError ? 'var(--danger)' : 'var(--bg-page)';
-    $('modal-desc-content').innerHTML = htmlContent;
-    const list = $('modal-details');
-    list.innerHTML = '';
-    items.forEach(i => { const li = document.createElement('li'); li.innerHTML = i; list.appendChild(li); });
-    $('modal-footer').innerText = footer;
-    setTimeout(()=> modal.classList.add('show-modal'), 10);
-  }
-
-  async function runSimulation() {
-    isRunning = true;
-    $('btn-run').disabled = true;
-    $('mode-std').disabled = true;
-    $('mode-zama').disabled = true;
-    resetVisuals();
-
-    try {
-      if(currentMode === 'std') {
-        explain("Step 1: Plaintext Input. User sends plaintext numbers 5 and 10 openly on the network.");
-        log("User inputting plaintext [5, 10].", "normal");
-        safeAddClass('node-usr', 'active-std');
-        await wait(800);
-        
-        log("Broadcasting transaction to mempool...", "err");
-        await movePacket('l-std', '5,10', '#ff4d4d');
-        safeRemoveClass('node-usr', 'active-std');
-        
-        safeAddClass('node-host', 'active-std');
-        log("Host executed publicly.", "err");
-        
-        // GLOW PAUSE
-        await wait(1000); 
-        
-        $('host-st').innerText = "State: 15 (VISIBLE)";
-        
-        const publicDesc = `
-          <p><b>How Public Blockchains Work:</b> In a standard transaction, data is sent in <b>plaintext</b>. The miners need to see the data to verify the transaction logic (5 + 10 = 15). While this ensures correctness, it means <b>zero privacy</b>.</p>
-          <p>Because the data is visible in the mempool before it is finalized, it is vulnerable to <b>MEV (Maximal Extractable Value)</b> attacks, where bots front-run your trade. The final state '15' is permanently visible to the world.</p>
-        `;
-        
-        showModal("Public Transaction Complete", publicDesc, ["Broadcast: Plaintext sent openly.", "Execution: Public verification.", "Risk: High exposure."], "Result: 15", true);
-      } else {
-        explain("Step 1: Encrypt & Send to Relayer. User generating keys and encrypting inputs.");
-        log("User generating ephemeral keys...", "zama");
-        await wait(300);
-        log("Encrypting inputs [5, 10] -> [ct1, ct2].", "zama");
-        await wait(300);
-        log("Generating ZK Proof of Knowledge (ZKPoK).", "zama");
-        
-        safeAddClass('node-usr', 'active-zama');
-        await movePacket('l-usr-rel', 'Enc', '#ffd503');
-        safeRemoveClass('node-usr', 'active-zama');
-        
-        safeAddClass('node-rel', 'active-mid');
-        log("Relayer processing...", "normal");
-        await wait(500);
-        
-        explain("Step 2: Relayer forwards ZK Proofs to Gateway for validation.");
-        await movePacket('l-rel-gw', 'ZK Proof', '#ff9f1c');
-        safeAddClass('node-gw', 'active-zama');
-        log("Gateway verifying proofs...", "zama");
-        await wait(800);
-        $('gw-st').innerText = "Verified";
-        safeRemoveClass('node-gw', 'active-zama');
-        
-        explain("Step 3: Relayer submits Transaction to Host Chain.");
-        await movePacket('l-rel-host', 'Tx', '#fff');
-        safeRemoveClass('node-rel', 'active-mid');
-        
-        safeAddClass('node-host', 'active-host-exec');
-        explain("Step 4: Host Chain executes logic symbolically using Handles.");
-        log("Host executing...", "zama");
-        await wait(1000); // HOST GLOWS HERE
-        
-        await movePacket('l-host-cp', 'Event', '#007aff');
-        safeRemoveClass('node-host', 'active-host-exec');
-        
-        safeAddClass('node-cp', 'active-zama');
-        explain("Step 5: Coprocessors perform blind arithmetic on encrypted data.");
-        log("Computing FHE...", "zama");
-        $('cp-bar').setAttribute('width', 180); $('cp-bar').style.transition = "width 2s";
-        await wait(1500);
-        
-        explain("Step 6: Sending Result Digest to Gateway.");
-        await movePacket('l-cp-gw', 'Digest', '#00ff9d');
-        safeRemoveClass('node-cp', 'active-zama');
-        
-        explain("Step 7: Gateway requests Threshold Decryption from K M S.");
-        await movePacket('l-gw-kms', 'Req', '#ff0055');
-        ['s1','s2','s3'].forEach(id => $(id).style.fill = '#00ff9d');
-        log("KMS Threshold met.", "zama");
-        await wait(1000);
-        
-        explain("Step 8: Gateway sends decrypted result to Oracle for delivery.");
-        await movePacket('l-gw-orc', '15', '#ff9f1c');
-        await movePacket('l-orc-host', 'Callback', '#ff9f1c');
-        
-        $('host-st').innerText = "State: 15 (Encrypted)";
-        
-        const zamaDesc = `
-          <p><b>How Zama fhEVM Works:</b> This transaction was end-to-end encrypted. The user's inputs (5, 10) were encrypted locally. The <b>Host Chain</b> didn't process the numbers; it processed "Handles" (references). The actual addition happened on <b>Coprocessors</b> which computed on the ciphertext without seeing the data.</p>
-          <p>To reveal the result, a <b>Threshold Protocol</b> was used. The KMS shards collaborated to decrypt the result only after verifying the user's permission. Finally, an <b>Oracle</b> securely bridged the result back to the chain. This ensures that <b>data remains confidential</b> throughout the entire lifecycle.</p>
-        `;
-        
-        showModal("Secure Done", zamaDesc, ["Encryption: Inputs hidden via ZK.", "Blind Compute: Math on ciphertexts.", "KMS: No single key failure point."], "Result: 15", false);
-      }
-    } catch(e) { console.error(e); alert("Error: "+e.message); }
-    finally { 
-      if(currentMode === 'std' && !$('result-modal').classList.contains('show-modal')) {
-          isRunning = false; $('btn-run').disabled = false; $('btn-run').innerText = "RESET";
-      }
-    }
-  }
-
-  return { setMode, runSimulation, togglePause, closeModal, resetApp, toggleAudio };
-})();
+};
 </script>
 </body>
 </html>
