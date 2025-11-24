@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" />
-<title>Zama fhEVM Simulator - v27 Visuals</title>
+<title>Zama fhEVM Simulator - v28 High Vis</title>
 <style>
   :root {
     /* COLORS */
@@ -63,8 +63,7 @@
 
   /* MAIN LAYOUT */
   .layout { 
-    display: grid; 
-    grid-template-columns: 1fr 400px; 
+    display: grid; grid-template-columns: 1fr 400px; 
     flex: 1; min-height: 0; overflow: hidden; 
   }
   
@@ -75,7 +74,7 @@
   }
   svg { width: 100%; height: 100%; pointer-events: none; } 
   
-  /* TEACHING OVERLAY - Responsive Sizing */
+  /* TEACHING OVERLAY */
   .teaching-box {
     position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
     background: #000; border: 2px solid var(--bg-page); padding: 10px 25px; 
@@ -118,7 +117,15 @@
   /* SVG TEXT */
   .txt-label { fill: #fff; font-size: 16px; font-weight: 800; font-family: sans-serif; pointer-events: none; }
   .txt-detail { fill: #aaa; font-size: 12px; font-family: monospace; pointer-events: none; }
-  .packet-text { fill: #000; font-size: 11px; font-weight: 900; pointer-events: none; }
+  
+  /* --- PACKET TEXT UPDATE --- */
+  .packet-text { 
+    fill: #fff; /* White Text */
+    font-size: 13px; /* Larger font */
+    font-weight: 900; 
+    pointer-events: none;
+    text-shadow: 0px 1px 3px rgba(0,0,0,0.9); /* Heavy shadow for visibility on light colors */
+  }
 
   /* FOOTER */
   footer {
@@ -149,37 +156,26 @@
     .txt-label { font-size: 18px; } 
     .txt-detail { font-size: 14px; }
 
-    /* Smaller Status Bar for Mobile */
     .teaching-box { top: 5px; padding: 6px 15px; }
     .teaching-title { font-size: 9px; }
     .teaching-text { font-size: 11px; }
   }
 
-  /* VISUAL ACTIVE STATES */
+  /* SVG STYLES */
   .node-rect { fill: var(--node-bg); stroke: #555; stroke-width: 2; transition: all 0.3s; }
   
-  /* Zama Active (Gateway/KMS/Host in Zama mode) */
-  .node-rect.active-zama { 
-    stroke: var(--bg-page); stroke-width: 4; 
-    fill: rgba(255, 213, 3, 0.15); /* Yellow Tint */
-    filter: drop-shadow(0 0 15px rgba(255, 213, 3, 0.6)); 
-  }
-  
-  /* Standard Active (Public Mode) */
-  .node-rect.active-std { 
-    stroke: var(--danger); stroke-width: 4; 
-    fill: rgba(255, 77, 77, 0.15); /* Red Tint */
-    filter: drop-shadow(0 0 15px rgba(255, 77, 77, 0.6)); 
-  }
-  
-  /* Mid Active (Relayer/Oracle) */
-  .node-rect.active-mid { 
-    stroke: var(--neon-orange); stroke-width: 3; 
-    fill: rgba(255, 159, 28, 0.15); /* Orange Tint */
-    filter: drop-shadow(0 0 12px rgba(255, 159, 28, 0.5)); 
-  }
+  /* ACTIVE STATES */
+  .node-rect.active-zama { stroke: var(--bg-page); stroke-width: 4; fill: rgba(255, 213, 3, 0.15); filter: drop-shadow(0 0 15px rgba(255, 213, 3, 0.6)); }
+  .node-rect.active-std { stroke: var(--danger); stroke-width: 4; fill: rgba(255, 77, 77, 0.15); filter: drop-shadow(0 0 15px rgba(255, 77, 77, 0.6)); }
+  .node-rect.active-mid { stroke: var(--neon-orange); stroke-width: 3; fill: rgba(255, 159, 28, 0.15); filter: drop-shadow(0 0 12px rgba(255, 159, 28, 0.5)); }
 
-  .packet { stroke: #fff; stroke-width: 2; opacity: 0; }
+  /* --- PACKET STYLE UPDATE --- */
+  .packet { 
+    stroke: #fff; 
+    stroke-width: 3; /* Thicker border */
+    opacity: 0; 
+  }
+  
   .link { fill: none; stroke: #444; stroke-width: 2; stroke-dasharray: 6 6; opacity: 0.2; }
   .link.relevant { opacity: 1; stroke: #888; }
 
@@ -254,7 +250,11 @@
         <g id="node-rel" transform="translate(200, 510)"><rect class="node-rect" width="100" height="80" rx="4" style="stroke:var(--neon-orange)" /><text x="15" y="45" class="txt-label" style="fill:var(--neon-orange)">Relayer</text></g>
         <g id="node-orc" transform="translate(200, 350)"><rect class="node-rect" width="100" height="80" rx="4" style="stroke:var(--neon-orange)" /><text x="15" y="45" class="txt-label" style="fill:var(--neon-orange)">Oracle</text></g>
         <g id="node-usr" transform="translate(20, 510)"><rect class="node-rect" width="80" height="80" rx="8" /><text x="20" y="45" class="txt-label">User</text></g>
-        <g id="packet-group"><circle id="packet-body" class="packet" cx="0" cy="0" r="18" /><text id="packet-text" class="packet-text" x="0" y="4">Tx</text></g>
+        
+        <g id="packet-group">
+          <circle id="packet-body" class="packet" cx="0" cy="0" r="24" />
+          <text id="packet-text" class="packet-text" x="0" y="5">Tx</text>
+        </g>
       </g>
     </svg>
   </div>
@@ -457,155 +457,71 @@ const app = (function() {
 
     try {
       if(currentMode === 'std') {
-        explain("Step 1: User sends plaintext numbers (5, 10) openly on the network.");
-        log("User inputting plaintext [5, 10].", "normal");
-        safeAddClass('node-usr', 'active-std');
-        await wait(800);
-        
-        log("Broadcasting transaction to mempool...", "err");
-        await movePacket('l-std', '5,10', '#ff4d4d');
-        safeRemoveClass('node-usr', 'active-std');
-        
+        explain("Step 1: Plaintext Input.");
+        log("User sending [5, 10].", "normal");
+        await movePacket('l-std', '5,10', '#ff4d4d', 1500);
         safeAddClass('node-host', 'active-std');
-        log("Miner picking up transaction.", "err");
-        explain("Step 2: Host Chain computes 5+10 publicly. Everyone sees the math.");
-        await wait(1000);
+        log("Host executed publicly.", "err");
         $('host-st').innerText = "State: 15 (VISIBLE)";
-        log("Host Chain executed op: ADD(5, 10).", "err");
-        log("Result '15' written to public storage.", "err");
         await wait(500);
-        
-        $('packet-body').style.opacity = 0; $('packet-text').style.opacity = 0;
         
         const publicDesc = `
           <p><b>How Public Blockchains Work:</b> In a standard transaction, data is sent in <b>plaintext</b>. The miners need to see the data to verify the transaction logic (5 + 10 = 15). While this ensures correctness, it means <b>zero privacy</b>.</p>
           <p>Because the data is visible in the mempool before it is finalized, it is vulnerable to <b>MEV (Maximal Extractable Value)</b> attacks, where bots front-run your trade. The final state '15' is permanently visible to the world.</p>
         `;
         
-        showModal(
-          "Public Transaction Complete", 
-          publicDesc, 
-          [
-            "<b>Broadcast:</b> Plaintext (5, 10) sent openly.",
-            "<b>Execution:</b> Logic verified publicly by all nodes.",
-            "<b>Storage:</b> Result '15' is permanently exposed.",
-            "<b>Risk:</b> High exposure to surveillance & MEV."
-          ], 
-          "Result: Everyone knows '15'.", 
-          true
-        );
-
+        showModal("Public Transaction Complete", publicDesc, ["Broadcast: Plaintext sent openly.", "Execution: Public verification.", "Risk: High exposure."], "Result: 15", true);
       } else {
-        // ZAMA FLOW
-        explain("Phase 1: User generates ephemeral keys and encrypts inputs (5, 10) with Global Public Key.");
-        log("User generating ephemeral keys...", "zama");
-        safeAddClass('node-usr', 'active-zama');
-        await wait(500);
-        log("Encrypting inputs [5, 10] -> [ct1, ct2].", "zama");
-        await wait(500);
-        log("Generating ZK Proof of Knowledge (ZKPoK).", "zama");
-        
-        await movePacket('l-usr-rel', 'Enc+ZK', '#ffd503');
-        safeRemoveClass('node-usr', 'active-zama');
+        explain("Step 1: Encrypt & Send to Relayer.");
+        log("User Encrypting...", "zama");
+        await movePacket('l-usr-rel', 'Enc', '#ffd503', 800);
         
         safeAddClass('node-rel', 'active-mid');
-        log("Relayer accepted packet. Paying gas fees.", "normal");
+        log("Relayer processing...", "normal");
         await wait(500);
         
-        explain("Phase 1: Relayer forwards ZK Proofs to Gateway for validation.");
-        log("Relayer forwarding ZK Proofs to Gateway.", "normal");
-        await movePacket('l-rel-gw', 'ZK Proof', '#ff9f1c');
-        
+        explain("Step 2: Relayer -> Gateway (Verify).");
+        await movePacket('l-rel-gw', 'ZK', '#ff9f1c', 800);
         safeAddClass('node-gw', 'active-zama');
-        log("Gateway verifying ZK Proofs...", "zama");
-        $('gw-st').innerText = "Verifying...";
+        log("Gateway verifying proofs...", "zama");
         await wait(800);
         $('gw-st').innerText = "Verified";
-        log("Proofs Valid. Signing attestation.", "zama");
         safeRemoveClass('node-gw', 'active-zama');
         
-        log("Relayer submitting transaction to Host Chain.", "normal");
-        await movePacket('l-rel-host', 'Tx', '#fff');
+        explain("Step 3: Relayer -> Host.");
+        await movePacket('l-rel-host', 'Tx', '#fff', 1000);
         safeRemoveClass('node-rel', 'active-mid');
         
-        safeAddClass('node-host', 'active-zama');
-        explain("Phase 2: Host Chain executes logic symbolically (using Handles).");
-        log("Host Chain executing smart contract...", "zama");
-        $('host-st').innerText = "Handle: 0x8a...";
-        log("Host encountered encrypted handle. Emitting Event.", "zama");
-        await wait(800);
-        
-        await movePacket('l-host-cp', 'Event', '#007aff');
-        safeRemoveClass('node-host', 'active-zama');
+        explain("Step 4: Host -> Coprocessors.");
+        await movePacket('l-host-cp', 'Event', '#007aff', 1000);
         
         safeAddClass('node-cp', 'active-zama');
-        explain("Phase 2: Coprocessors perform blind arithmetic on encrypted data.");
-        log("Coprocessors picked up event.", "normal");
-        log("Computing: FHE_ADD(ct1, ct2)...", "zama");
+        log("Computing FHE...", "zama");
         $('cp-bar').setAttribute('width', 180); $('cp-bar').style.transition = "width 2s";
         await wait(1500);
         
-        log("Computation complete. Result Ciphertext generated.", "zama");
-        log("Committing result digest to Gateway.", "normal");
-        await movePacket('l-cp-gw', 'Digest', '#00ff9d');
+        explain("Step 5: Sending Digest.");
+        await movePacket('l-cp-gw', 'Digest', '#00ff9d', 1000);
         safeRemoveClass('node-cp', 'active-zama');
         
-        explain("Phase 3: Gateway requests Threshold Decryption from KMS.");
-        safeAddClass('node-gw', 'active-zama');
-        log("Gateway checking ACL (Access Control List).", "zama");
-        await wait(500);
-        log("Requesting decryption from KMS Cluster.", "zama");
-        await movePacket('l-gw-kms', 'Req', '#ff0055');
+        explain("Step 6: Decrypt (KMS).");
+        await movePacket('l-gw-kms', 'Req', '#ff0055', 800);
+        ['s1','s2','s3'].forEach(id => $(id).style.fill = '#00ff9d');
+        log("KMS Threshold met.", "zama");
+        await wait(1000);
         
-        safeAddClass('node-kms', 'active-zama');
-        explain("Phase 3: KMS shards independently verify and sign partial decryptions.");
-        log("KMS Node 1 verifying request...", "zama");
-        $('s1').style.fill = '#00ff9d'; await wait(200);
-        log("KMS Node 2 verifying request...", "zama");
-        $('s2').style.fill = '#00ff9d'; await wait(200);
-        log("KMS Node 3 verifying request...", "zama");
-        $('s3').style.fill = '#00ff9d'; await wait(200);
+        explain("Step 7: Oracle Delivery.");
+        await movePacket('l-gw-orc', '15', '#ff9f1c', 800);
+        await movePacket('l-orc-host', 'Callback', '#ff9f1c', 1000);
         
-        log("Threshold met. Computing partial decryptions.", "zama");
-        await wait(800);
-        
-        log("Gateway aggregating partial shares.", "zama");
-        $('gw-st').innerText = "Result: 15";
-        safeRemoveClass('node-kms', 'active-zama');
-        
-        explain("Phase 4: Gateway sends decrypted result to Oracle for delivery.");
-        log("Gateway sending plaintext to Oracle.", "normal");
-        await movePacket('l-gw-orc', '15', '#ff9f1c');
-        safeRemoveClass('node-gw', 'active-zama');
-        
-        safeAddClass('node-orc', 'active-mid');
-        log("Oracle preparing Callback Transaction.", "normal");
-        await wait(500);
-        await movePacket('l-orc-host', 'Callback', '#ff9f1c');
-        safeRemoveClass('node-orc', 'active-mid');
-        
-        safeAddClass('node-host', 'active-zama');
-        log("Host Chain updated with decrypted result.", "zama");
-        await wait(500);
-        $('packet-body').style.opacity = 0; $('packet-text').style.opacity = 0;
+        $('host-st').innerText = "State: 15 (Encrypted)";
         
         const zamaDesc = `
           <p><b>How Zama fhEVM Works:</b> This transaction was end-to-end encrypted. The user's inputs (5, 10) were encrypted locally. The <b>Host Chain</b> didn't process the numbers; it processed "Handles" (references). The actual addition happened on <b>Coprocessors</b> which computed on the ciphertext without seeing the data.</p>
           <p>To reveal the result, a <b>Threshold Protocol</b> was used. The KMS shards collaborated to decrypt the result only after verifying the user's permission. Finally, an <b>Oracle</b> securely bridged the result back to the chain. This ensures that <b>data remains confidential</b> throughout the entire lifecycle.</p>
         `;
-
-        showModal(
-          "Secure Execution Complete", 
-          zamaDesc, 
-          [
-            "<b>Encryption:</b> Inputs hidden via ZK Proofs.",
-            "<b>Blind Compute:</b> Math performed on ciphertexts.",
-            "<b>Threshold KMS:</b> No single point of key failure.",
-            "<b>Oracle Delivery:</b> Trustless bridge back to chain."
-          ], 
-          "Result: You see '15'.", 
-          false
-        );
+        
+        showModal("Secure Done", zamaDesc, ["Encryption: Inputs hidden via ZK.", "Blind Compute: Math on ciphertexts.", "KMS: No single key failure point."], "Result: 15", false);
       }
     } catch(e) { console.error(e); alert("Error: "+e.message); }
     finally { 
