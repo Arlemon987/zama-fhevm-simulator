@@ -203,13 +203,13 @@
 <header>
   <div class="branding">
     <img src="logo.jpg" alt="Logo" class="zama-logo" onerror="this.style.backgroundColor='white'" />
-    <h1>Zama <span>FHEVM Sim</span></h1>
+    <h1>Zama <span>FHEVM Simulator</span></h1>
   </div>
-  <div class="disclaimer">Based on <a href="https://github.com/zama-ai/fhevm/blob/main/fhevm-whitepaper.pdf" target="_blank">Zama Whitepaper</a>. Simplified for edu.</div>
+  <div class="disclaimer">Based on <a href="https://github.com/zama-ai/fhevm/blob/main/fhevm-whitepaper.pdf" target="_blank">Zama Whitepaper</a>. Simplified for edu. There might be mistakes in the simulation. I just tried to show what I understood.</div>
   <div class="mode-wrapper">
     <div class="mode-switch">
-      <button id="mode-std" class="mode-btn" onclick="window.setMode('std')">Public</button>
-      <button id="mode-zama" class="mode-btn active-zama" onclick="window.setMode('zama')">Zama</button>
+      <button id="mode-std" class="mode-btn" onclick="window.setMode('std')">Other EVM</button>
+      <button id="mode-zama" class="mode-btn active-zama" onclick="window.setMode('zama')">Zama FHEVM</button>
     </div>
   </div>
 </header>
@@ -394,7 +394,7 @@ window.setMode = function(m) {
     btn.innerText = "START ZAMA";
     $('step-title').style.color = "var(--bg-page)";
     $('step-title').innerText = "ZAMA FHEVM";
-    $('step-desc').innerText = "Full encrypted flow.";
+    $('step-desc').innerText = "Full encrypted flow. Highly secure. Only the use can see data.";
   }
   window.resetVisuals();
 };
@@ -599,4 +599,5 @@ window.runSimulation = async function() {
 </script>
 </body>
 </html>
+
 
