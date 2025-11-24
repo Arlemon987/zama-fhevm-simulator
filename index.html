@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" />
-<title>Zama fhEVM Simulator - v28 Final Fix</title>
+<title>Zama fhEVM Simulator - v29 Detailed</title>
 <style>
   :root {
     /* COLORS */
@@ -65,9 +65,7 @@
   .layout { 
     display: grid; 
     grid-template-columns: 1fr 400px; 
-    flex: 1; 
-    min-height: 0; /* Critical for flex child scrolling */
-    overflow: hidden; 
+    flex: 1; min-height: 0; overflow: hidden; 
   }
   
   /* CANVAS */
@@ -75,7 +73,6 @@
     position: relative; background: radial-gradient(circle at 50% 50%, #2a2a2a 0%, #000000 100%); 
     overflow: hidden; border-right: 4px solid #000; display: flex; align-items: center; justify-content: center;
   }
-  /* Preserve Aspect Ratio ensures it fits without being cut off */
   svg { width: 100%; height: 100%; pointer-events: none; } 
   
   /* TEACHING OVERLAY */
@@ -161,8 +158,6 @@
   .node-rect.active-zama { stroke: var(--bg-page); stroke-width: 4; fill: rgba(255, 213, 3, 0.15); filter: drop-shadow(0 0 12px rgba(255, 213, 3, 0.6)); }
   .node-rect.active-std { stroke: var(--danger); stroke-width: 4; fill: rgba(255, 77, 77, 0.15); filter: drop-shadow(0 0 12px rgba(255, 77, 77, 0.6)); }
   .node-rect.active-mid { stroke: var(--neon-orange); stroke-width: 3; fill: rgba(255, 159, 28, 0.15); filter: drop-shadow(0 0 10px rgba(255, 159, 28, 0.5)); }
-  
-  /* Special State for Host Execution */
   .node-rect.active-host-exec { stroke: #fff; stroke-width: 4; fill: rgba(255,255,255,0.2); filter: drop-shadow(0 0 15px rgba(255,255,255,0.5)); }
 
   .packet { stroke: #fff; stroke-width: 3; opacity: 0; }
@@ -177,14 +172,15 @@
   }
   .modal-content {
     background: #151a23; border: 4px solid var(--bg-page); border-radius: 16px; 
-    width: 90%; max-width: 500px; max-height: 80vh; padding: 20px; 
+    width: 90%; max-width: 650px; max-height: 85vh; padding: 25px; 
     display: flex; flex-direction: column; box-shadow: 0 0 50px rgba(0,0,0,0.8); 
   }
-  .modal-header { font-size: 18px; font-weight: 800; margin-bottom: 10px; color: #fff; }
-  .modal-body { font-size: 13px; line-height: 1.5; color: #ddd; overflow-y: auto; }
+  .modal-header { font-size: 20px; font-weight: 800; margin-bottom: 10px; color: #fff; flex-shrink: 0; }
+  .modal-body { font-size: 14px; line-height: 1.6; color: #ddd; overflow-y: auto; padding-right: 5px; }
+  .modal-body p { margin-bottom: 15px; }
   .modal-list { margin-top: 10px; padding-left: 20px; border-left: 3px solid #555; }
   .modal-list li { margin-bottom: 8px; }
-  .modal-btn { margin-top: 15px; padding: 12px; font-size: 12px; font-weight: 900; border-radius: 8px; cursor: pointer; background: var(--bg-page); border: none; }
+  .modal-btn { margin-top: 15px; padding: 14px; font-size: 12px; font-weight: 900; border-radius: 8px; cursor: pointer; background: var(--bg-page); border: none; flex-shrink: 0; }
   
   #final-overlay { background: rgba(0,0,0,0.85); display: none; flex-direction: column; z-index: 99990; }
   .final-btn { padding: 15px 30px; font-size: 16px; font-weight: 900; background: transparent; border: 3px solid var(--bg-page); color: var(--bg-page); border-radius: 50px; cursor: pointer; }
@@ -273,7 +269,7 @@
   <div class="modal-content">
     <div class="modal-header" id="modal-title">Title</div>
     <div class="modal-body">
-      <p id="modal-msg" style="margin-bottom:15px; font-weight:bold;">Message</p>
+      <div id="modal-desc-content"></div>
       <ul class="modal-list" id="modal-details"></ul>
       <p id="modal-footer" style="margin-top:15px; font-weight:bold; color:#fff; border-top:1px solid #444; padding-top:10px;"></p>
     </div>
@@ -422,11 +418,11 @@ const app = (function() {
     }, 300);
   }
 
-  function showModal(title, msg, items, footer, isError) {
+  function showModal(title, htmlContent, items, footer, isError) {
     modal.style.display = 'flex';
     $('modal-title').innerText = title;
     $('modal-title').style.color = isError ? 'var(--danger)' : 'var(--bg-page)';
-    $('modal-msg').innerText = msg;
+    $('modal-desc-content').innerHTML = htmlContent;
     const list = $('modal-details');
     list.innerHTML = '';
     items.forEach(i => { const li = document.createElement('li'); li.innerHTML = i; list.appendChild(li); });
@@ -450,11 +446,17 @@ const app = (function() {
         safeAddClass('node-host', 'active-std');
         log("Host executed publicly.", "err");
         
-        // STOP AND GLOW
+        // GLOW PAUSE
         await wait(1000); 
         
         $('host-st').innerText = "State: 15 (VISIBLE)";
-        showModal("Public Tx Done", "Data Exposed.", ["Inputs Visible.", "No Privacy."], "Result: 15", true);
+        
+        const publicDesc = `
+          <p>In a standard public blockchain (like Ethereum), transparency is absolute. When you initiated this transaction, the inputs <b>'5'</b> and <b>'10'</b> were broadcast in plaintext to thousands of nodes worldwide. Consequently, the computed result <b>'15'</b> is permanently recorded on the global ledger, visible to any observer.</p>
+          <p>This architecture creates significant vulnerabilities. Because the transaction intent is visible in the 'mempool' before it is finalized, predatory bots (MEV) can front-run your trade. Furthermore, this lack of privacy limits utility for sensitive data like medical records or private finance.</p>
+        `;
+        
+        showModal("Public Transaction Complete", publicDesc, ["Broadcast: Plaintext sent openly.", "Execution: Public verification.", "Risk: High exposure."], "Result: 15", true);
       } else {
         explain("Step 1: Encrypt & Send to Relayer.");
         log("User Encrypting...", "zama");
@@ -504,7 +506,13 @@ const app = (function() {
         await movePacket('l-orc-host', 'Callback', '#ff9f1c', 1000);
         
         $('host-st').innerText = "State: 15 (Encrypted)";
-        showModal("Secure Done", "Confidential.", ["Relayer Gas.", "Gateway Verify.", "KMS Decrypt."], "Result: 15", false);
+        
+        const zamaDesc = `
+          <p>This simulation demonstrates a complete <b>Confidential Smart Contract</b> execution. The user's inputs were encrypted and passed through a <b>Relayer</b> to handle gas and connectivity. The <b>Gateway</b> acted as the trustless coordinator, verifying Zero-Knowledge Proofs (ZKPoKs) before allowing the Host Chain to interact with the data.</p>
+          <p>The actual computation happened off-chain on <b>Coprocessors</b> performing homomorphic operations on ciphertexts. Finally, the result was decrypted via a <b>Threshold Protocol</b> involving the KMS shards, and an <b>Oracle</b> delivered the plaintext '15' back to the chain. This ensures that neither the Relayer, the Gateway, the Host Chain, nor the Coprocessors ever saw the inputs.</p>
+        `;
+        
+        showModal("Secure Done", zamaDesc, ["Encryption: Inputs hidden via ZK.", "Blind Compute: Math on ciphertexts.", "KMS: No single key failure point."], "Result: 15", false);
       }
     } catch(e) { console.error(e); alert("Error: "+e.message); }
     finally { 
